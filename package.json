@@ -1,7 +1,7 @@
 {
-    "name": "BlocklyDuino",
+    "name": "robosiddhi",
     "version": "0.8.0",
-    "description": "BlocklyDuino is a web-based visual programming editor for [Arduino boards](http://www.arduino.cc/)",
+    "description": "robosiddhi is a web-based visual programming editor for [Arduino boards](http://www.arduino.cc/)",
     "license": "GPL-3.0",
     "author": "Sébastien Canet <scanet@libreduc.cc>",
     "main": "main.js",
@@ -24,12 +24,15 @@
     ],
     "build": {
         "asar": true,
-        "appId": "com.electron.BlocklyDuino2",
+        "asarUnpack": [
+            "**/node_modules/@serialport/bindings-cpp/**"
+        ],
+        "appId": "com.robosiddhi.app",
         "directories": {
             "buildResources": "./src",
             "output": "./dist"
         },
-        "productName": "BlocklyDuino2",
+        "productName": "robosiddhi",
         "win": {
             "target": [
                 "portable",
@@ -70,17 +73,17 @@
         "publish": [
             {
                 "provider": "github",
-                "repo": "BlocklyDuino/BlocklyDuino2Electron",
-                "owner": "SebCanet",
+                "repo": "robosiddhi",
+                "owner": "YOGESH11K",
                 "releaseType": "release"
             }
         ]
     },
     "scripts": {
         "postinstall": "electron-builder install-app-deps",
-        "prepare": "electron-build-env npm rebuild",
+        "prepare": "echo Native rebuild not required - serialport 10 ships N-API prebuilds",
         "start": "electron .",
-        "compile": "electron-builder --win --ia32"
+        "compile": "electron-builder --win --x64"
     },
     "repository": {
         "type": "git",
@@ -99,7 +102,7 @@
         "electron-updater": "^4.3.8",
         "fs-extra": "^9.1.0",
         "npm-check-updates": "^23.1.0",
-        "serialport": "^9.0.7",
+        "serialport": "^10.5.0",
         "tableify": "^1.1.0"
     }
 }

@@ -19,7 +19,7 @@ const {ipcRenderer} = require('electron');
 const {exec} = require('child_process');
 const fs = require('fs-extra');
 const tableify = require('tableify')
-const SerialPort = require('serialport');
+const { SerialPort } = require('serialport');
 
 //populate COM port modal with all com port detected on system
 document.getElementById('serialButton').addEventListener("mouseover", function (event) {

@@ -36,13 +36,14 @@ function createBlocklyWindow() {
         height: 700,
         webPreferences: {
             nodeIntegration: true,
-            enableRemoteModule: true
+            contextIsolation: false,
+            sandbox: false
         },
         // icon: __dirname + '/www/blocklyduino/media/icon.ico'
-        icon: __dirname + '../../../www/blocklyduino/media/icon.ico'
+        icon: __dirname + '/www/blocklyduino/media/icon.ico'
     });
     // var url = '/www/index.html';
-    var url = '../../../www/index.html';
+    var url = '/www/index.html';
     // if (process.platform === 'win32' && process.argv.length >= 2) {    
         // url = url + process.argv[1];
     // }
@@ -107,14 +108,16 @@ function createSerialWindow(argLangChoice) {
         height: 530,
         'parent': BlocklyWindow,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false,
+            sandbox: false
         },
         resizable: false,
         // icon: __dirname + '/src/icon.ico'
-        icon: __dirname + '../../../www/blocklyduino/media/icon.ico'
+        icon: __dirname + '/www/blocklyduino/media/icon.ico'
     });
     // var url = '/nodejs/serialMonitor.html';
-    var url = '../../../nodejs/serialMonitor.html';
+    var url = '/nodejs/serialMonitor.html';
     if (argLangChoice !== "" || argLangChoice !== "undefined")
         url = url + '?lang=' + argLangChoice;
     SerialWindow.loadURL(`file://${__dirname}` + url);
@@ -135,12 +138,14 @@ function createHackCableWindow(argLangChoice) {
         height: 640,
         'parent': BlocklyWindow,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false,
+            sandbox: false
         },
         resizable: true,
-        icon: __dirname + '../../../www/blocklyduino/media/icon.ico'
+        icon: __dirname + '/www/blocklyduino/media/icon.ico'
     });
-    var url = '../../../www/tools/hackcable/index.html';
+    var url = '/www/tools/hackcable/index.html';
     if (argLangChoice !== "" || argLangChoice !== "undefined")
         url = url + '?lang=' + argLangChoice;
     HackCableWindow.loadURL(`file://${__dirname}` + url);
@@ -156,12 +161,14 @@ function createFactoryWindow(argLangChoice) {
         height: 640,
         'parent': BlocklyWindow,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false,
+            sandbox: false
         },
         resizable: true,
-        icon: __dirname + '../../../www/blocklyduino/media/icon.ico'
+        icon: __dirname + '/www/blocklyduino/media/icon.ico'
     });
-    var url = '../../../www/tools/blockFactory/blockFactory.html';
+    var url = '/www/tools/blockFactory/blockFactory.html';
     if (argLangChoice !== "" || argLangChoice !== "undefined")
         url = url + '?lang=' + argLangChoice;
     FactoryWindow.loadURL(`file://${__dirname}` + url);
@@ -177,12 +184,14 @@ function createBlocklyHtmlWindow(argLangChoice) {
         height: 640,
         'parent': BlocklyWindow,
         webPreferences: {
-            nodeIntegration: true
+            nodeIntegration: true,
+            contextIsolation: false,
+            sandbox: false
         },
         resizable: true,
-        icon: __dirname + '../../../www/blocklyduino/media/icon.ico'
+        icon: __dirname + '/www/blocklyduino/media/icon.ico'
     });
-    var url = '../../../www/tools/html/html_factory.html';
+    var url = '/www/tools/html/html_factory.html';
     if (argLangChoice !== "" || argLangChoice !== "undefined")
         url = url + '?lang=' + argLangChoice;
     BlocklyHtmlWindow.loadURL(`file://${__dirname}` + url);
@@ -202,7 +211,7 @@ function refresh(BlocklyWindow = BrowserWindow.getFocusedWindow()) {
     BlocklyWindow.webContents.reloadIgnoringCache();
 };
 //need to be deleted at next serialport upgrade > 9.0.0
-app.allowRendererProcessReuse = false;
+//app.allowRendererProcessReuse = false; (removed in Electron 20+, no longer supported)
 
 app.on('ready', () => {
     createBlocklyWindow();

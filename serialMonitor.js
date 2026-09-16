@@ -37,15 +37,15 @@ window.addEventListener('load', function load(event) {
         }
     };
     document.getElementById('btn_serialConnect').onclick = function () {
-        const SerialPort = require('serialport');
-        const Readline = require('@serialport/parser-readline');
+        const { SerialPort } = require('serialport');
+        const { ReadlineParser } = require('@serialport/parser-readline');
         var baud = parseInt(document.getElementById('serialConnectSpeed_Menu').value);
         var comPortToUse = localStorage.getItem("comPort");
         let SerialPortToMonitor = new SerialPort(comPortToUse, {
             autoOpen: false,
             baudRate: baud
         });
-        var parser = SerialPortToMonitor.pipe(new Readline({ delimiter: '\n' }))
+        var parser = SerialPortToMonitor.pipe(new ReadlineParser({ delimiter: '\n' }))
         if (!serialConnected) {
             document.getElementById('btn_serialConnect').innerHTML = MSG['serial_btn_stop'];
             document.getElementById('btn_serialSend').disabled = false;
