@@ -53,6 +53,35 @@ Code.loadDefaultExample = function () {
 };
 
 /**
+ * The Arduino sketch always needs a setup() and a loop() structure.
+ * This makes sure the "setup" and "loop" blocks are permanently present on
+ * the workspace every time (startup, new project, file load...). If a user
+ * deletes one of them, it is restored automatically.
+ */
+Code.ensureSetupLoopBlocks = function () {
+    if (!Code.workspace || Code.setupLoopBusy_) {
+        return;
+    }
+    var hasSetup = Code.workspace.getBlocksByType('base_setup', false).length > 0;
+    var hasLoop = Code.workspace.getBlocksByType('base_loop', false).length > 0;
+    if (hasSetup && hasLoop) {
+        return;
+    }
+    Code.setupLoopBusy_ = true;
+    var xmlText = '<xml xmlns="http://www.w3.org/1999/xhtml">';
+    if (!hasSetup) {
+        xmlText += '<block type="base_setup" id="permanent_setup" x="30" y="30"></block>';
+    }
+    if (!hasLoop) {
+        xmlText += '<block type="base_loop" id="permanent_loop" x="30" y="220"></block>';
+    }
+    xmlText += '</xml>';
+    var xml = Blockly.Xml.textToDom(xmlText);
+    Blockly.Xml.domToWorkspace(xml, Code.workspace);
+    Code.setupLoopBusy_ = false;
+};
+
+/**
  * Populate the currently selected pane with content generated from the blocks.
  */
 Code.renderContent = function () {
@@ -190,6 +219,14 @@ Code.init = function () {
         Code.loadBlocks();
         Code.loadDefaultExample();
     }
+
+    // setup and loop are permanent: always keep them on the workspace
+    Code.ensureSetupLoopBlocks();
+    Code.workspace.addChangeListener(function (event) {
+        if (event.type === Blockly.Events.BLOCK_DELETE) {
+            Code.ensureSetupLoopBlocks();
+        }
+    });
 
     // Code.loadBlocks('');
     // Hook a save function onto unload.

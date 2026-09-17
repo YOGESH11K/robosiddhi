@@ -32,6 +32,16 @@
             "buildResources": "./src",
             "output": "./dist"
         },
+        "files": [
+            "!v0.*/*",
+            "!nbproject/*",
+            "!.github/*",
+            "!dist/**",
+            "!dist-final/**",
+            "!dist-live/**",
+            "!tmp/**",
+            "!sync.ffs_db"
+        ],
         "productName": "Robosiddhi",
         "win": {
             "target": [
@@ -39,12 +49,7 @@
                 "zip"
             ],
             "signAndEditExecutable": false,
-            "icon": "src/appIcon.png",
-            "files": [
-                "!v0.*/*",
-                "!nbproject/*",
-                "!.github/*"
-            ]
+            "icon": "src/appIcon.png"
         },
         "nsis": {
             "installerIcon": "src/install.ico",
@@ -66,7 +71,6 @@
             "documentation",
             "nodejs",
             "sketchbook",
-            "www",
             "CHANGELOG.txt",
             "README.md",
             "LICENSE"

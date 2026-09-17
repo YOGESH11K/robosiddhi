@@ -1,6 +1,7 @@
 node_modules/
 dist/
 dist-final/
+dist-live/
 sync.ffs_db
 compiler/packages/
 compiler/tmp/
