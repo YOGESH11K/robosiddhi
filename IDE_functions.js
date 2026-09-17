@@ -82,10 +82,7 @@ window.addEventListener('load', function load(event) {
             else
                 var cmd = 'arduino-cli.exe compile -b ' + upload_arg + ' ' + file_path;
 
-            fs.writeFile(file, data, (err) => {
-                if (err)
-                    return console.log(err);
-            });
+            fs.writeFileSync(file, data);
             document.getElementById('content_serial').innerHTML += '<br>' + MSG['IDE_verif_progress'];
             exec(cmd, {
                 cwd: './compiler'
@@ -101,7 +98,19 @@ window.addEventListener('load', function load(event) {
         }
     };
     document.getElementById('uploadButton').onclick = function (event) {
+        try {
+            fs.accessSync('.\\compiler\\tmp', fs.constants.W_OK);
+        } catch (err) {
+            fs.mkdirSync('.\\compiler\\tmp', {
+                recursive: false
+            }, (err) => {
+                if (err)
+                    throw err;
+            });
+        }
         var file_path = '.\\tmp';
+        var file = '.\\compiler\\tmp\\tmp.ino';
+        var data = document.getElementsByClassName("ace_content")[0].innerText;
         var boardSelected = document.getElementById('boardMenu').value;
         var comPortSelected = document.getElementById('serialMenu').value;
         if ((boardSelected == "none") || (boardSelected == "...") || (boardSelected == "") || (boardSelected == "undefined")) {
@@ -124,6 +133,7 @@ window.addEventListener('load', function load(event) {
             var cmd = 'arduino-cli.exe upload -v -p ' + comPortSelected + ' -b ' + upload_arg + ' ' + file_path;
         else
             var cmd = 'arduino-cli.exe upload -p ' + comPortSelected + ' -b ' + upload_arg + ' ' + file_path;
+        fs.writeFileSync(file, data);
         exec(cmd, {
             cwd: './compiler'
         }, (error, stdout, stderr) => {
@@ -134,17 +144,6 @@ window.addEventListener('load', function load(event) {
             }
             document.getElementById('content_serial').style.color = '#00FF00';
             document.getElementById('content_serial').innerHTML = stdout + '<br>' + MSG['IDE_upload_ok'];
-            const path = require('path');
-            fs.readdir('.\\compiler\\tmp', (err, files) => {
-                if (err)
-                    throw err;
-                for (const file of files) {
-                    fs.unlink(path.join('.\\compiler\\tmp', file), err => {
-                        if (err)
-                            throw err;
-                    });
-                }
-            });
         });
     };
     document.getElementById('serialConnectButton').addEventListener('click', function () {

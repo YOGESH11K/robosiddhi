@@ -128,3 +128,11 @@ Blockly.Msg.RELAY_MOSFET_TEXT = "le transistor MOSFET";
 Blockly.Msg.RELAY_MOSFET_INPUT = "connecté sur la broche N°";
 Blockly.Msg.RELAY_MOSFET_TOOLTIP = "un transistor MOSFET est un télérupteur, c'est un interrupteur placé dans un circuit de puissance qui est actionné par un signal numérique";
 Blockly.Msg.RELAY_MOSFET_HELPURL = "http://sin.lyceeleyguescouffignal.fr/irf520-mosfet-driver-module";
+
+//blocs setup et loop
+Blockly.Msg.BASE_SETUP_INPUT = "init";
+Blockly.Msg.BASE_SETUP_TOOLTIP = "Le code placé ici ne s'exécute qu'une seule fois au démarrage du programme.";
+Blockly.Msg.BASE_SETUP_HELPURL = "https://www.arduino.cc/reference/fr/language/structure/sketch/setup/";
+Blockly.Msg.BASE_LOOP_INPUT = "boucle";
+Blockly.Msg.BASE_LOOP_TOOLTIP = "Le code placé ici s'exécute encore et encore jusqu'à ce que la carte soit arrêtée ou réinitialisée.";
+Blockly.Msg.BASE_LOOP_HELPURL = "https://www.arduino.cc/reference/fr/language/structure/sketch/loop/";

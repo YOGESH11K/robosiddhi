@@ -132,3 +132,15 @@ Blockly.Arduino['controls_switch'] = function (block) {
     code += '}'
     return code + '\n';
 };
+
+Blockly.Arduino['base_setup'] = function (block) {
+    // Code inside runs only once when the program starts.
+    var code = Blockly.Arduino.statementToCode(block, 'SETUP');
+    Blockly.Arduino.setups_['userSetupCode'] = code;
+    return '';
+};
+
+Blockly.Arduino['base_loop'] = function (block) {
+    // Code inside runs over and over until the program is stopped.
+    return Blockly.Arduino.statementToCode(block, 'LOOP');
+};

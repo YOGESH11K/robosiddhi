@@ -38,6 +38,7 @@
                 "portable",
                 "zip"
             ],
+            "signAndEditExecutable": false,
             "icon": "src/appIcon.png",
             "files": [
                 "!v0.*/*",

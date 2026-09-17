@@ -1,3 +1,6 @@
 node_modules/
 dist/
 sync.ffs_db
+compiler/packages/
+compiler/tmp/
+tmp/

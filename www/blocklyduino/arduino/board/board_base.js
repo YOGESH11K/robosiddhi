@@ -16,9 +16,10 @@ goog.provide('Blockly.Arduino.board_base');
 goog.require('Blockly.Arduino');
 
 Blockly.Arduino['board_base_inout_buildin_led'] = function (block) {
+    var led_num = block.getFieldValue('LED_NUM') || '13';
     var dropdown_stat = block.getFieldValue('STAT');
-    Blockly.Arduino.setups_['setup_output_13'] = 'pinMode(LED_BUILTIN, OUTPUT);';
-    var code = 'digitalWrite(LED_BUILTIN, ' + dropdown_stat + ');\n'
+    Blockly.Arduino.setups_['setup_output_' + led_num] = 'pinMode(' + led_num + ', OUTPUT);';
+    var code = 'digitalWrite(' + led_num + ', ' + dropdown_stat + ');\n'
     return code;
 };
 

@@ -265,7 +265,42 @@ Blockly.Blocks['controls_case_default'] = {
         this.appendDummyInput()
                 .appendField(Blockly.Msg.CONTROLS_SWITCH_MSG_DEFAULT);
         this.setPreviousStatement(true);
+        this.setNextStatement(true);
         this.setTooltip(Blockly.Msg.CONTROLS_SWITCH_DEFAULT_TOOLTIP);
         this.contextMenu = false;
+    }
+};
+
+Blockly.Blocks['base_setup'] = {
+    /**
+     * Block for code that runs once when the program (setup) starts.
+     * @this Blockly.Block
+     */
+    init: function () {
+        this.setStyle('logic_blocks');
+        this.appendDummyInput()
+                .appendField(Blockly.Msg.BASE_SETUP_INPUT);
+        this.appendStatementInput('SETUP');
+        this.setPreviousStatement(false);
+        this.setNextStatement(true);
+        this.setTooltip(Blockly.Msg.BASE_SETUP_TOOLTIP);
+        this.setHelpUrl(Blockly.Msg.BASE_SETUP_HELPURL);
+    }
+};
+
+Blockly.Blocks['base_loop'] = {
+    /**
+     * Block for code that runs over and over (loop) until stopped.
+     * @this Blockly.Block
+     */
+    init: function () {
+        this.setStyle('logic_blocks');
+        this.appendDummyInput()
+                .appendField(Blockly.Msg.BASE_LOOP_INPUT);
+        this.appendStatementInput('LOOP');
+        this.setPreviousStatement(true);
+        this.setNextStatement(false);
+        this.setTooltip(Blockly.Msg.BASE_LOOP_TOOLTIP);
+        this.setHelpUrl(Blockly.Msg.BASE_LOOP_HELPURL);
     }
 };

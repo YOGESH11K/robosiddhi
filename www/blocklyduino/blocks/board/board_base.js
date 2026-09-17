@@ -25,7 +25,9 @@ Blockly.Blocks['board_base_inout_buildin_led'] = {
     init: function () {
         this.setHelpUrl(Blockly.Msg.ARDUINO_INOUT_BUILDIN_LED_HELPURL);
         this.appendDummyInput()
-                .appendField(Blockly.Msg.ARDUINO_INOUT_BUILDIN_LED_INPUT)
+                .appendField("LED number")
+                .appendField(new Blockly.FieldNumber(13, 0, null, 1), 'LED_NUM')
+                .appendField("set to")
                 .appendField(new Blockly.FieldDropdown(Blockly.Msg.FIELDDROPDOWN), 'STAT');
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);

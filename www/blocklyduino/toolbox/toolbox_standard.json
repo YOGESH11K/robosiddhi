@@ -13,6 +13,12 @@ var toolbox_standard = {
             "contents": [
                 {
                   "kind": "block",
+                  "type": "base_setup"
+                }, {
+                  "kind": "block",
+                  "type": "base_loop"
+                }, {
+                  "kind": "block",
                   "type": "controls_if"
                 }, {
                   "kind": "block",

@@ -33,6 +33,25 @@ Code.loadBlocks = function (defaultXml) {
     }
 };
 
+Code.loadDefaultExample = function () {
+    try {
+        if (Blockly.getMainWorkspace().getTopBlocks(true).length > 0) {
+            return;
+        }
+        var fs = require('fs');
+        var path = require('path');
+        var exFile = path.join(__dirname, 'examples', 'blink.xml');
+        if (!fs.existsSync(exFile)) {
+            return;
+        }
+        var data = fs.readFileSync(exFile, 'utf8');
+        var xml = Blockly.Xml.textToDom(data);
+        Blockly.Xml.domToWorkspace(xml, Code.workspace);
+    } catch (e) {
+        console.log('No default example loaded:', e);
+    }
+};
+
 /**
  * Populate the currently selected pane with content generated from the blocks.
  */
@@ -79,7 +98,9 @@ Code.init = function () {
         horizontalLayout: false,
         maxBlocks: Infinity,
         maxInstances: {
-            'test_basic_limit_instances': 3
+            'test_basic_limit_instances': 3,
+            'base_setup': 1,
+            'base_loop': 1
         },
         maxTrashcanContents: 256,
         media: './@blockly/media/',
@@ -167,6 +188,7 @@ Code.init = function () {
         // }, 'text');
     } else {
         Code.loadBlocks();
+        Code.loadDefaultExample();
     }
 
     // Code.loadBlocks('');
