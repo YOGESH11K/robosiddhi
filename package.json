@@ -32,7 +32,7 @@
             "buildResources": "./src",
             "output": "./dist"
         },
-        "productName": "robosiddhi",
+        "productName": "Robosiddhi",
         "win": {
             "target": [
                 "portable",
