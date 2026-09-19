@@ -19,6 +19,9 @@ var toolbox_standard = {
                   "type": "base_loop"
                 }, {
                   "kind": "block",
+                  "blockxml": "<block type='board_base_delay'><value name='DELAY_TIME'> <shadow type='math_number'> <field name='NUM'>1000</field> </shadow> </value></block>"
+                }, {
+                  "kind": "block",
                   "type": "controls_if"
                 }, {
                   "kind": "block",

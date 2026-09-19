@@ -274,12 +274,15 @@ document.getElementById('dataConversionButton').onmouseover = function () {
 document.getElementById('dataConversionButton').onmouseout = function () {
     document.getElementById("content_hoverButton").textContent = "";
 };
-document.getElementById('iotConnectButton').onmouseover = function () {
-    document.getElementById("content_hoverButton").textContent = MSG['iotConnectButton_span'];
-};
-document.getElementById('iotConnectButton').onmouseout = function () {
-    document.getElementById("content_hoverButton").textContent = "";
-};
+var iotConnectButtonEl = document.getElementById('iotConnectButton');
+if (iotConnectButtonEl) {
+    iotConnectButtonEl.onmouseover = function () {
+        document.getElementById("content_hoverButton").textContent = MSG['iotConnectButton_span'];
+    };
+    iotConnectButtonEl.onmouseout = function () {
+        document.getElementById("content_hoverButton").textContent = "";
+    };
+}
 document.getElementById('launchWebServer').onmouseover = function () {
     document.getElementById("content_hoverButton").textContent = MSG['launchWebServer_span'];
 };

@@ -404,15 +404,20 @@ Code.initLanguage = function () {
     document.getElementById('colorConversionButton_span_menu').textContent = MSG['colorConversionButton_span'];
     document.getElementById('dataConversionButton_span_menu').textContent = MSG['dataConversionButton_span'];
     // menu IoT
-    document.getElementById('iotConnectButton').title = MSG['iotConnectButton_span'];
+    var iotConnectButtonEl = document.getElementById('iotConnectButton');
+    if (iotConnectButtonEl) iotConnectButtonEl.title = MSG['iotConnectButton_span'];
     document.getElementById('launchWebServer').title = MSG['launchWebServer_span'];
     document.getElementById('papyrusConnect').title = MSG['papyrusConnect_span'];
     document.getElementById('registerToOrchestrator').title = MSG['registerToOrchestrator_span'];
     document.getElementById('blynkConnect').title = MSG['blynkConnect_span'];
-    document.getElementById('launchWebServer_span_menu').textContent = MSG['launchWebServer_span'];
-    document.getElementById('papyrusConnect_span_menu').textContent = MSG['loadXMLfakeButton_span'];
-    document.getElementById('registerToOrchestrator_span_menu').textContent = MSG['registerToOrchestrator_span'];
-    document.getElementById('blynkConnect_span_menu').textContent = MSG['blynkConnect_span'];
+    var launchWebServerMenuEl = document.getElementById('launchWebServer_span_menu');
+    if (launchWebServerMenuEl) launchWebServerMenuEl.textContent = MSG['launchWebServer_span'];
+    var papyrusConnectMenuEl = document.getElementById('papyrusConnect_span_menu');
+    if (papyrusConnectMenuEl) papyrusConnectMenuEl.textContent = MSG['loadXMLfakeButton_span'];
+    var registerToOrchestratorMenuEl = document.getElementById('registerToOrchestrator_span_menu');
+    if (registerToOrchestratorMenuEl) registerToOrchestratorMenuEl.textContent = MSG['registerToOrchestrator_span'];
+    var blynkConnectMenuEl = document.getElementById('blynkConnect_span_menu');
+    if (blynkConnectMenuEl) blynkConnectMenuEl.textContent = MSG['blynkConnect_span'];
     // CLI panel
     document.getElementById('CLI_title_span').textContent = MSG['CLI_title_span'];
     document.getElementById('CLI_githubLinkButton').title = MSG['CLI_githubLinkButton_span'];

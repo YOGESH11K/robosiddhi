@@ -18,8 +18,8 @@
             <table id="globalTable">
                 <tr id="optionsTop">
                     <td  id="optionsTopTitle">
-                        <img src="./blocklyduino/media/logo_only2.png" style="width: 25px; vertical-align: middle;" />
-                        <span class="TitleText" id="appName"></span>
+                        <img src="./blocklyduino/media/logo_only2.png" style="height: 26px; width: auto; vertical-align: middle;" />
+                        <span class="TitleText" id="appName" hidden></span>
                     </td>
                     <!-- <span class="sketch_name_wrapper"> -->
                         <!-- <i class="mdi-image-edit sketch_name_icon active"></i> -->
@@ -149,47 +149,6 @@
                                 </div>
                             </div>
                         </div>
-                        <button id="iotConnectButton" class="iconButtons" onclick="document.getElementById('iotPopup').style.display = 'block';document.getElementById('iotConnectButton').classList.toggle('active');">
-                            <span id="iotConnectButton_span">
-                                <i class="fas fa-link"></i>
-                            </span>
-                        </button>
-                        <div id="iotPopup" class="popup_bckgrd" style="display:none" onclick="document.getElementById('iotPopup').style.display = 'none';document.getElementById('iotConnectButton').classList.toggle('active');">
-                            <div id="buttonsIotPopup" class="menu_div">
-                                <div id="buttonsIotPopupInside">
-                                    <button id="launchWebServer" class="iconButtons CLI">
-                                        <span id="launchWebServer_span">
-                                            <i class="fas fa-network-wired"></i>
-                                        </span>
-                                    </button>
-                                    <span id="launchWebServer_span_menu" class="menu_text"></span>
-                                    <br>
-                                    <hr>
-                                    <button id="papyrusConnect" class="iconButtons CLI" onclick="papyrusConnect()">
-                                        <span id="papyrusConnect_span">
-                                            <img src="./blocklyduino/media/Eclipse_papyrus_logo.png" style="width: 30px; height: 30px; vertical-align: middle;"/>
-                                        </span>
-                                    </button>
-                                    <span id="papyrusConnect_span_menu" class="menu_text"></span>
-                                    <br>
-                                    <hr>
-                                    <button id="registerToOrchestrator" class="iconButtons CLI" onclick="ArrowheadRegister()">
-                                        <span id="registerToOrchestrator_span">
-                                            <img src="./blocklyduino/media/arrowheadtools_invert.png" style="width: 30px; height: 30px; vertical-align: middle;"/>
-                                        </span>
-                                    </button>
-                                    <span id="registerToOrchestrator_span_menu" class="menu_text"></span>
-                                    <br>
-                                    <hr>
-                                    <button id="blynkConnect" class="iconButtons CLI" onclick="">
-                                        <span id="blynkConnect_span">
-                                            <img src="./blocklyduino/media/blynk.png" style="width: 30px; height: 30px; vertical-align: middle;"/>
-                                        </span>
-                                    </button>
-                                    <span id="blynkConnect_span_menu" class="menu_text"></span>
-                                </div>
-                            </div>
-                        </div>
                         <button id="boardButton" class="iconButtons" onclick="Code.boardsListModalShow()">
                             <span id="boardButton_span">
                                 <i class="fas fa-microchip"></i>
@@ -297,6 +256,11 @@
                             <option value="arduino_uno">Arduino Uno</option>
                             <option value="arduino_yun">Arduino Yùn</option>
                             <option value="lilypad">LilyPad</option>
+                            <option value="esp32_devkit_v1">ESP32 Dev Module</option>
+                            <option value="nodemcu_32s">NodeMCU-32S</option>
+                            <option value="esp32s2_dev">ESP32-S2 Dev Module</option>
+                            <option value="esp32s3_dev">ESP32-S3 Dev Module</option>
+                            <option value="esp32c3_dev">ESP32-C3 Dev Module</option>
                         </select>
                         <br>
                         <span id="languageSpan" class="UIText">...</span>
@@ -507,6 +471,13 @@
                             	<option value="arduino_uno">Arduino Uno</option>
                             	<option value="arduino_yun">Arduino Yùn</option>
                             	<option value="lilypad">LilyPad</option>
+                            </optgroup>
+                            <optgroup label="ESP32 / ESP8266">
+                            	<option value="esp32_devkit_v1">ESP32 Dev Module</option>
+                            	<option value="nodemcu_32s">NodeMCU-32S</option>
+                            	<option value="esp32s2_dev">ESP32-S2 Dev Module</option>
+                            	<option value="esp32s3_dev">ESP32-S3 Dev Module</option>
+                            	<option value="esp32c3_dev">ESP32-C3 Dev Module</option>
                             </optgroup>
                         </select>
                     </div>

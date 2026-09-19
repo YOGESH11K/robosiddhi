@@ -16,16 +16,10 @@ var jsonToolbox = {
 jsonToolbox["contents"][0] = toolbox_standard["contents"][0];
 jsonToolbox["contents"][1] = toolbox_standard["contents"][1];
 jsonToolbox["contents"][2] = toolbox_standard["contents"][2];
-jsonToolbox["contents"][3] = toolbox_standard["contents"][3];
-jsonToolbox["contents"][4] = toolbox_standard["contents"][4];
-jsonToolbox["contents"][5] = toolbox_standard["contents"][5];
-jsonToolbox["contents"][6] = toolbox_standard["contents"][6];
-jsonToolbox["contents"][7] = toolbox_standard["contents"][7];
-jsonToolbox["contents"][8] = toolbox_arduino["contents"][0];
-jsonToolbox["contents"][9] = toolbox_ds18b20["contents"][0];
-jsonToolbox["contents"][10] = toolbox_grove["contents"][0];
-jsonToolbox["contents"][11] = toolbox_relay["contents"][0];
-jsonToolbox["contents"][12] = toolbox_servo["contents"][0];
+jsonToolbox["contents"][3] = toolbox_standard["contents"][6];
+jsonToolbox["contents"][4] = toolbox_arduino["contents"][0];
+jsonToolbox["contents"][5] = toolbox_relay["contents"][0];
+jsonToolbox["contents"][6] = toolbox_servo["contents"][0];
 
 /**
  * Build the toolbox using toolbox definition in json files
