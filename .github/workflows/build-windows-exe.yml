@@ -1,0 +1,29 @@
+name: Build Windows EXE
+
+# Keeps the downloadable EXE always in sync with the code ("hamesha latest").
+# Builds on every push + on-demand from the Actions tab.
+on:
+  push:
+    branches: [feature/robosiddhi-esp-ide, master]
+  workflow_dispatch:
+
+jobs:
+  build-win:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run compile
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Robosiddhi-ESP-IDE-windows
+          path: |
+            dist/Robosiddhi 0.8.0.exe
+            dist/Robosiddhi-0.8.0-win.zip
+          if-no-files-found: error
+          retention-days: 30
