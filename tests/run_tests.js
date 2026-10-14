@@ -256,7 +256,8 @@ test('toolbox is ESP-only', () => {  const fs = require('fs');
 test('upload reminds board boot step', () => {
   const fs = require('fs');
   const src = fs.readFileSync(path.join(__dirname, '../IDE_functions.js'), 'utf8');
-  assert.ok(/RST|replug/i.test(src), 'upload success reminds RST/replug boot step');
+  assert.ok(/ABB RST DABAO/.test(src), 'success shows ABB RST DABAO prompt');
+  assert.ok(/RST MAT dabao/.test(src), 'uploading shows RST MAT dabao prompt');
 });
 test('logic category curated for ESP LED work', () => {
   const fs = require('fs');

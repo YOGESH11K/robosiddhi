@@ -175,11 +175,11 @@ window.addEventListener('load', function load() {
             return;
         }
         var fqbn = profile.default['upload_arg'];
-        RoboSiddhiShow(MSG['IDE_upload1'] + RoboSiddhiEsc(profile.default['description']) + MSG['IDE_upload2'] + RoboSiddhiEsc(comPortSelected) + '<br>' + MSG['IDE_upload3'], '#FFFFFF');
+        RoboSiddhiShow(MSG['IDE_upload1'] + RoboSiddhiEsc(profile.default['description']) + MSG['IDE_upload2'] + RoboSiddhiEsc(comPortSelected) + '<br>' + MSG['IDE_upload3'] + '<br><b>Upload ho raha hai — RST MAT dabao, USB mat nikalo.</b>', '#FFFFFF');
         window.RoboSiddhi.writeSketch(data).then(function () {
             return window.RoboSiddhi.upload({ fqbn: fqbn, port: comPortSelected, verbose: RoboSiddhiVerbose() });
         }).then(function (res) {
-            if (res.ok) RoboSiddhiShow(RoboSiddhiEsc(res.stdout) + '<br>' + MSG['IDE_upload_ok'] + '<br>Program start karne ke liye: board par RST dabao YA USB cable nikalo-lagao.', '#00FF00');
+            if (res.ok) RoboSiddhiShow(RoboSiddhiEsc(res.stdout) + '<br>' + MSG['IDE_upload_ok'] + '<br><b>ABB RST DABAO (ek baar) YA USB cable nikalo-lagao — tabhi naya program chalega.</b>', '#00FF00');
             else RoboSiddhiShow(RoboSiddhiEsc(RoboSiddhiDiagnose(res.stderr, fqbn)), '#FF0000');
         }).catch(function (err) {
             RoboSiddhiShow(RoboSiddhiEsc((err && err.message) || err), '#FF0000');
