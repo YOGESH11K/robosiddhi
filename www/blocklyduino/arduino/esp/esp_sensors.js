@@ -87,3 +87,24 @@ Blockly.Arduino['robosiddhi_esp_serial_print'] = function (block) {
   if (mode === 'LN') return 'Serial.println(' + txt + ');\n';
   return 'Serial.print(' + txt + ');\n';
 };
+
+Blockly.Arduino['robosiddhi_led_blink'] = function (block) {
+  var pin = block.getFieldValue('PIN') || '2';
+  var onms = Blockly.Arduino.valueToCode(block, 'ON_MS', Blockly.Arduino.ORDER_ATOMIC) || '500';
+  var offms = Blockly.Arduino.valueToCode(block, 'OFF_MS', Blockly.Arduino.ORDER_ATOMIC) || '500';
+  Blockly.Arduino.setups_['setup_output_' + pin] = 'pinMode(' + pin + ', OUTPUT);';
+  return 'digitalWrite(' + pin + ', HIGH);\n' +
+    'delay(' + onms + ');\n' +
+    'digitalWrite(' + pin + ', LOW);\n' +
+    'delay(' + offms + ');\n';
+};
+
+Blockly.Arduino['robosiddhi_led_fade'] = function (block) {
+  var pin = block.getFieldValue('PIN') || '2';
+  var dur = Blockly.Arduino.valueToCode(block, 'DURATION', Blockly.Arduino.ORDER_ATOMIC) || '2000';
+  return '{\n' +
+    '  int _rs_step = max(1, (' + dur + ') / 510);\n' +
+    '  for (int _rs_b = 0; _rs_b <= 255; _rs_b++) { analogWrite(' + pin + ', _rs_b); delay(_rs_step); }\n' +
+    '  for (int _rs_b = 255; _rs_b >= 0; _rs_b--) { analogWrite(' + pin + ', _rs_b); delay(_rs_step); }\n' +
+    '}\n';
+};

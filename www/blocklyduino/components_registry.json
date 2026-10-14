@@ -7,7 +7,7 @@
       "protocol": "GPIO digital", "boards": ["esp32_devkit_v1", "nodemcu_32s", "esp32s2_dev", "esp32s3_dev", "esp32c3_dev", "esp8266_nodemcu"],
       "pins": { "signal": 1, "vccViaResistor": "3V3 via 220Ω", "gnd": 1 },
       "voltage": "3.3V with 220Ω series resistor. Never drive LED without resistor.",
-      "libraries": [], "blocks": ["robosiddhi_led_set"],
+      "libraries": [], "blocks": ["robosiddhi_led_set", "robosiddhi_led_blink", "robosiddhi_led_fade"],
       "wiring": "GPIO -> 220Ω -> LED anode (+), LED cathode (-) -> GND. Onboard LED needs no wiring.",
       "example": "www/examples/esp_blink.xml"
     },

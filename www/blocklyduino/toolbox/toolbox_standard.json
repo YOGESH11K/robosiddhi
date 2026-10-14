@@ -13,10 +13,16 @@ var toolbox_standard = {
             "contents": [
                 {
                   "kind": "block",
-                  "type": "base_setup"
+                  "type": "base_setup_loop"
                 }, {
                   "kind": "block",
-                  "type": "base_loop"
+                  "type": "robosiddhi_led_set"
+                }, {
+                  "kind": "block",
+                  "blockxml": "<block type='robosiddhi_led_blink'><value name='ON_MS'> <shadow type='math_number'> <field name='NUM'>500</field> </shadow> </value><value name='OFF_MS'> <shadow type='math_number'> <field name='NUM'>500</field> </shadow> </value></block>"
+                }, {
+                  "kind": "block",
+                  "blockxml": "<block type='robosiddhi_led_fade'><value name='DURATION'> <shadow type='math_number'> <field name='NUM'>2000</field> </shadow> </value></block>"
                 }, {
                   "kind": "block",
                   "blockxml": "<block type='board_base_delay'><value name='DELAY_TIME'> <shadow type='math_number'> <field name='NUM'>1000</field> </shadow> </value></block>"
@@ -35,15 +41,6 @@ var toolbox_standard = {
                 }, {
                   "kind": "block",
                   "type": "logic_boolean"
-                }, {
-                  "kind": "block",
-                  "type": "logic_null"
-                }, {
-                  "kind": "block",
-                  "type": "logic_ternary"
-                }, {
-                  "kind": "block",
-                  "type": "controls_switch"
                 }
             ]}, {
             "kind": "category",
@@ -93,27 +90,6 @@ var toolbox_standard = {
                 }, {
                   "kind": "block",
                   "blockxml": "<block type='math_arithmetic'><value name='A'><shadow type='math_number'><field name='NUM'>1</field></shadow></value><value name='B'><shadow type='math_number'><field name='NUM'>1</field></shadow></value></block>"
-                }, {
-                  "kind": "block",
-                  "blockxml": "<block type='math_single'><value name='NUM'><shadow type='math_number'><field name='NUM'>9</field></shadow></value></block>"
-                }, {
-                  "kind": "block",
-                  "blockxml": "<block type='math_trig'><value name='NUM'><shadow type='math_number'><field name='NUM'>45</field></shadow></value></block>"
-                }, {
-                  "kind": "block",
-                    "type": "math_constant"
-                }, {
-                  "kind": "block",
-                  "blockxml": "<block type='math_number_property'><value name='NUMBER_TO_CHECK'><shadow type='math_number'><field name='NUM'>0</field></shadow></value></block>"
-                }, {
-                  "kind": "block",
-                  "blockxml": "<block type='math_round'><value name='NUM'><shadow type='math_number'><field name='NUM'>3.14</field></shadow></value></block>"
-                }, {
-                  "kind": "block",
-                    "type": "math_on_list"
-                }, {
-                  "kind": "block",
-                  "blockxml": "<block type='math_modulo'><value name='DIVIDEND'><shadow type='math_number'><field name='NUM'>64</field></shadow></value><value name='DIVISOR'><shadow type='math_number'><field name='NUM'>10</field></shadow></value></block>"
                 }, {
                   "kind": "block",
                   "blockxml": "<block type='math_constrain'><value name='VALUE'> <shadow type='math_number'> <field name='NUM'>50</field> </shadow> </value> <value name='LOW'> <shadow type='math_number'> <field name='NUM'>1</field> </shadow> </value> <value name='HIGH'> <shadow type='math_number'> <field name='NUM'>100</field> </shadow> </value></block>"

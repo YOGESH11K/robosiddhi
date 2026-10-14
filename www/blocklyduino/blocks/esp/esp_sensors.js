@@ -150,3 +150,42 @@ Blockly.Blocks['robosiddhi_esp_serial_print'] = {
     this.setTooltip('Serial.println/print. Call Serial.begin in setup (use Serial blocks). Baud must match monitor.');
   }
 };
+
+Blockly.Blocks['robosiddhi_led_blink'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField('LED blink pin')
+      .appendField(new Blockly.FieldDropdown(function () { return RoboSiddhiPinOptions('digital_out'); }), 'PIN');
+    this.appendValueInput('ON_MS').setCheck('Number').appendField('ON ms');
+    this.appendValueInput('OFF_MS').setCheck('Number').appendField('OFF ms');
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setStyle('arduino_blocks');
+    this.setTooltip('Blink LED once: ON, wait, OFF, wait. Put in loop to keep blinking. Use 220Ω resistor.');
+    this.setOnChange(function () {
+      if (!this.workspace || this.isInFlyout) return;
+      var r = RoboSiddhiValidate(this.getFieldValue('PIN'), 'digital_out', 'robosiddhi_led_blink');
+      this.setWarningText(r.level === 'ok' ? null : r.messages.join('\n'));
+    });
+  }
+};
+
+Blockly.Blocks['robosiddhi_led_fade'] = {
+  init: function () {
+    this.appendDummyInput()
+      .appendField('LED glow (fade) pin')
+      .appendField(new Blockly.FieldDropdown(function () { return RoboSiddhiPinOptions('pwm'); }), 'PIN');
+    this.appendValueInput('DURATION').setCheck('Number').appendField('full glow time ms');
+    this.setInputsInline(true);
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setStyle('arduino_blocks');
+    this.setTooltip('Smooth glow up and down on a PWM pin (e.g. GPIO 2, 13, 25). Needs PWM-capable GPIO.');
+    this.setOnChange(function () {
+      if (!this.workspace || this.isInFlyout) return;
+      var r = RoboSiddhiValidate(this.getFieldValue('PIN'), 'pwm', 'robosiddhi_led_fade');
+      this.setWarningText(r.level === 'ok' ? null : r.messages.join('\n'));
+    });
+  }
+};

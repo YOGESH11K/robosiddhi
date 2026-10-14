@@ -161,7 +161,7 @@ test('project schema round-trips', () => {
 });
 test('examples exist and parse as XML', () => {
   const fs = require('fs');
-  ['esp_blink.xml', 'esp_temp_alarm.xml', 'esp_autolight.xml', 'esp_obstacle.xml', 'esp_soil.xml', 'esp_motion.xml', 'esp_oled_hello.xml', 'esp_wifi_http.xml'].forEach(f => {
+  ['esp_blink.xml', 'esp_temp_alarm.xml', 'esp_autolight.xml', 'esp_obstacle.xml', 'esp_soil.xml', 'esp_motion.xml', 'esp_oled_hello.xml', 'esp_wifi_http.xml', 'esp_led_fade.xml', 'esp_led_on_g2.xml'].forEach(f => {
     const s = fs.readFileSync(path.join(__dirname, '../www/examples/' + f), 'utf8');
     assert.ok(s.includes('<xml') && s.includes('base_setup_loop'), f);
   });
@@ -238,8 +238,7 @@ test('dead files stay deleted', () => {  const fs = require('fs');
 });
 
 // 12. ESP-only toolbox: no Arduino label, no Relay/Servo categories
-test('toolbox is ESP-only', () => {
-  const fs = require('fs');
+test('toolbox is ESP-only', () => {  const fs = require('fs');
   const en = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/msg/categories_en.js'), 'utf8');
   const m = en.match(/Blockly\.Msg\.CAT_BOARD = "(.*)";/);
   assert.ok(m, 'CAT_BOARD found');
@@ -251,6 +250,37 @@ test('toolbox is ESP-only', () => {
   const tb = fs.readFileSync(path.join(__dirname, '../www/js/toolbox.js'), 'utf8');
   assert.ok(!tb.includes('toolbox_relay') && !tb.includes('toolbox_servo'), 'relay/servo out of default toolbox');
   assert.ok(tb.includes('toolbox_arduino') && tb.includes('toolbox_esp'), 'ESP32 GPIO + ESP components kept');
+});
+
+// 13. Logic holds ESP LED set: setup+loop, LED on/off, blink, glow, delay, if/compare
+test('logic category curated for ESP LED work', () => {
+  const fs = require('fs');
+  const raw = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/toolbox/toolbox_standard.json'), 'utf8');
+  const m = raw.match(/var toolbox_standard = (\{[\s\S]*\})\s*;?\s*$/);
+  assert.ok(m, 'toolbox_standard wrapper');
+  const std = JSON.parse(m[1]);
+  const logic = std.contents[0];
+  assert.strictEqual(logic.toolboxitemid, 'LOGIC');
+  const logicText = JSON.stringify(logic);
+  ['base_setup_loop', 'robosiddhi_led_set', 'robosiddhi_led_blink', 'robosiddhi_led_fade',
+   'board_base_delay', 'controls_if', 'logic_compare'].forEach(t => {
+    assert.ok(logicText.includes(t), 'LOGIC has ' + t);
+  });
+  ['board_base_inout_buildin_led', 'logic_null', 'logic_ternary', 'controls_switch'].forEach(t => {
+    assert.ok(!logicText.includes(t), 'LOGIC dropped ' + t);
+  });
+  const math = std.contents[2];
+  assert.strictEqual(math.toolboxitemid, 'MATH');
+  const mathText = JSON.stringify(math);
+  ['math_number', 'math_arithmetic', 'math_random_int', 'math_constrain'].forEach(t => {
+    assert.ok(mathText.includes(t), 'MATH has ' + t);
+  });
+  ['math_trig', 'math_single', 'math_constant', 'math_number_property', 'math_on_list', 'math_modulo'].forEach(t => {
+    assert.ok(!mathText.includes(t), 'MATH dropped ' + t);
+  });
+  const gen = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/arduino/esp/esp_sensors.js'), 'utf8');
+  assert.ok(gen.includes("Blockly.Arduino['robosiddhi_led_blink']") && gen.includes('delay('));
+  assert.ok(gen.includes("Blockly.Arduino['robosiddhi_led_fade']") && gen.includes('analogWrite('));
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
