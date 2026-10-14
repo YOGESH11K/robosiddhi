@@ -88,6 +88,8 @@
         "postinstall": "electron-builder install-app-deps",
         "prepare": "echo Native rebuild not required - serialport 10 ships N-API prebuilds",
         "start": "electron .",
+        "test": "node tests/run_tests.js",
+        "setup:esp": "node scripts/setup_esp.js",
         "compile": "electron-builder --win --x64"
     },
     "repository": {

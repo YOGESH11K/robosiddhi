@@ -1,0 +1,17 @@
+var toolbox_esp = {
+  "kind": "category",
+  "name": "ESP Sensors",
+  "toolboxitemid": "ESP",
+  "colour": "160",
+  "contents": [
+    { "kind": "block", "type": "robosiddhi_led_set" },
+    { "kind": "block", "type": "robosiddhi_rgb_set" },
+    { "kind": "block", "type": "robosiddhi_buzzer" },
+    { "kind": "block", "type": "robosiddhi_dht_read" },
+    { "kind": "block", "type": "robosiddhi_hcsr04" },
+    { "kind": "block", "type": "robosiddhi_pir_read" },
+    { "kind": "block", "type": "robosiddhi_ldr_read" },
+    { "kind": "block", "type": "robosiddhi_soil_read" },
+    { "kind": "block", "type": "robosiddhi_esp_serial_print" }
+  ]
+};

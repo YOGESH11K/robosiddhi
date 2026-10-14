@@ -41,10 +41,15 @@ window.addEventListener('load', function load(event) {
         const { ReadlineParser } = require('@serialport/parser-readline');
         var baud = parseInt(document.getElementById('serialConnectSpeed_Menu').value);
         var comPortToUse = localStorage.getItem("comPort");
-        let SerialPortToMonitor = new SerialPort(comPortToUse, {
-            autoOpen: false,
-            baudRate: baud
-        });
+        // serialport >=10: new SerialPort({ path, baudRate })
+        var openOpts = { path: comPortToUse, baudRate: baud, autoOpen: false };
+        let SerialPortToMonitor;
+        try {
+            SerialPortToMonitor = new SerialPort(openOpts);
+        } catch (e) {
+            // fallback for serialport <10 positional API
+            SerialPortToMonitor = new SerialPort(comPortToUse, { autoOpen: false, baudRate: baud });
+        }
         var parser = SerialPortToMonitor.pipe(new ReadlineParser({ delimiter: '\n' }))
         if (!serialConnected) {
             document.getElementById('btn_serialConnect').innerHTML = MSG['serial_btn_stop'];

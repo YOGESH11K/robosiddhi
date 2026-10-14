@@ -20,6 +20,18 @@ jsonToolbox["contents"][3] = toolbox_standard["contents"][6];
 jsonToolbox["contents"][4] = toolbox_arduino["contents"][0];
 jsonToolbox["contents"][5] = toolbox_relay["contents"][0];
 jsonToolbox["contents"][6] = toolbox_servo["contents"][0];
+// ESP Sensors category (added by RoboSiddhi ESP IDE). Guard if toolbox_esp missing.
+try {
+	if (typeof toolbox_esp !== 'undefined' && toolbox_esp) {
+		// normalize to category entry
+		if (toolbox_esp.kind === 'category') {
+			toolbox_esp.level = toolbox_esp.level || '1';
+			jsonToolbox["contents"][7] = toolbox_esp;
+		} else if (toolbox_esp.contents) {
+			jsonToolbox["contents"][7] = toolbox_esp.contents[0] || toolbox_esp;
+		}
+	}
+} catch (e) { console.log('ESP toolbox not loaded:', e); }
 
 /**
  * Build the toolbox using toolbox definition in json files
