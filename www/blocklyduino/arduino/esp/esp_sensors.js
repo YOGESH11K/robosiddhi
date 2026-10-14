@@ -117,16 +117,23 @@ Blockly.Arduino['robosiddhi_obstacle_guard'] = function (block) {
   if (isNaN(th)) th = 10;
   var closeStat = block.getFieldValue('CLOSE_STAT') || 'LOW';
   var farStat = (closeStat === 'LOW') ? 'HIGH' : 'LOW';
+  // Hysteresis dead-band stops threshold flicker: firmly close -> CLOSE,
+  // firmly far (or invalid) -> FAR, in-between keeps the previous LED state.
+  var low = (th > 4) ? th - 2 : th;
+  var high = th + 2;
   Blockly.Arduino.setups_['setup_output_' + trig] = 'pinMode(' + trig + ', OUTPUT);';
   Blockly.Arduino.setups_['setup_input_' + echo] = 'pinMode(' + echo + ', INPUT);';
   Blockly.Arduino.setups_['setup_output_' + led] = 'pinMode(' + led + ', OUTPUT);';
   return '{\n' +
+    '  static int _rs_guard_state = ' + farStat + ';\n' +
     '  digitalWrite(' + trig + ', LOW); delayMicroseconds(2);\n' +
     '  digitalWrite(' + trig + ', HIGH); delayMicroseconds(10);\n' +
     '  digitalWrite(' + trig + ', LOW);\n' +
     '  long _rd = pulseIn(' + echo + ', HIGH, 30000);\n' +
     '  long _cm = (_rd == 0) ? -1 : (long)(_rd * 0.034 / 2);\n' +
-    '  if (_cm >= 2 && _cm < ' + th + ') { digitalWrite(' + led + ', ' + closeStat + '); }\n' +
-    '  else { digitalWrite(' + led + ', ' + farStat + '); }\n' +
+    '  if (_cm >= 2 && _cm < ' + low + ') { _rs_guard_state = ' + closeStat + '; }\n' +
+    '  else if (_cm < 2 || _cm > ' + high + ') { _rs_guard_state = ' + farStat + '; }\n' +
+    '  digitalWrite(' + led + ', _rs_guard_state);\n' +
+    '  delay(100);\n' +
     '}\n';
 };
