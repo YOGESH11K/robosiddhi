@@ -229,11 +229,16 @@ test('packaged exe resolves beside the binary (extraFiles, not asar)', () => {  
   assert.ok(pkg.build.win.icon.endsWith('.ico'), 'windows icon is .ico');
   assert.ok(main.includes("app.setAppUserModelId('com.robosiddhi.app')"), 'explicit taskbar identity set');
 });
-test('no dead require-based default example (secure renderer safe)', () => {
-  const fs = require('fs');
+test('no dead require-based default example (secure renderer safe)', () => {  const fs = require('fs');
   const init = fs.readFileSync(path.join(__dirname, '../www/js/init.js'), 'utf8');
   assert.ok(!init.includes('loadDefaultExample'), 'dead default-example loader removed');
   assert.ok(init.includes('ensureSetupLoopBlocks'), 'permanent setup+loop kept');
+});
+test('board/port selection never crashes on empty menus', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/js/boards.js'), 'utf8');
+  assert.ok(!/options\[serialPortMenu\.selectedIndex\]\.value/.test(src), 'setPort guards empty menu');
+  assert.ok(!/options\[document\.getElementById\('serialMenu'\)\.selectedIndex\]\.value/.test(src), 'changeBoard guards empty menu');
 });
 test('user logo applied everywhere', () => {
   const fs = require('fs');
