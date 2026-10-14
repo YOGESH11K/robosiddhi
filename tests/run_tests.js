@@ -233,6 +233,7 @@ test('sketch file matches its directory (Arduino rule)', () => {
   const main = fs.readFileSync(path.join(__dirname, '../main.js'), 'utf8');
   assert.ok(main.includes("'sketch.ino'"), 'packaged sketch file is sketch.ino');
   assert.ok(main.includes("'tmp.ino'"), 'dev sketch file stays tmp.ino');
+  assert.ok(/removeSync\(path\.join\(sketchDirPath\(\), 'tmp\.ino'\)\)/.test(main), 'stale tmp.ino cleaned on write');
   const Build = require('../www/blocklyduino/js/robosiddhi_build.js');
   assert.ok(/main file missing/i.test(Build.diagnoseCompilerError("Can't open sketch: main file missing from sketch: X", 'esp32:esp32:esp32')), 'sketch error diagnosed exactly');
 });

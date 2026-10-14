@@ -315,6 +315,9 @@ ipcMain.handle('rs-ports', async () => {
 ipcMain.handle('rs-write-sketch', async (_e, code) => {
     if (typeof code !== 'string' || code.length > 500000) throw new Error('Sketch rejected (not text or too large).');
     fs.ensureDirSync(sketchDirPath());
+    // Drop stale tmp.ino left by older builds: Arduino compiles every .ino in the
+    // sketch dir, so a leftover would cause "redefinition" compile errors.
+    try { fs.removeSync(path.join(sketchDirPath(), 'tmp.ino')); } catch (e) {}
     fs.writeFileSync(sketchFilePath(), code);
     return { ok: true };
 });
