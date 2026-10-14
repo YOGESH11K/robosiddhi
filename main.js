@@ -21,6 +21,9 @@ const {
 } = require('electron');
 const path = require('path');
 const { execFile } = require('child_process');
+// Explicit taskbar identity: without this, Windows groups the app under a
+// generic Electron AppUserModelID and shows the Electron logo on taskbar pins.
+try { app.setAppUserModelId('com.robosiddhi.app'); } catch (e) {}
 const { SerialPort } = require('serialport');
 const { ReadlineParser } = require('@serialport/parser-readline');
 let RoboSiddhiBuild = null;

@@ -228,6 +228,7 @@ test('packaged exe resolves beside the binary (extraFiles, not asar)', () => {  
   const unpack = JSON.stringify(pkg.build.asarUnpack);
   assert.ok(!/compiler/.test(unpack), 'asarUnpack has no dead compiler entries');
   assert.ok(pkg.build.win.icon.endsWith('.ico'), 'windows icon is .ico');
+  assert.ok(main.includes("app.setAppUserModelId('com.robosiddhi.app')"), 'explicit taskbar identity set');
 });
 test('user logo applied everywhere', () => {
   const fs = require('fs');
