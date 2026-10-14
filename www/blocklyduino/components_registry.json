@@ -96,22 +96,22 @@
       "example": null
     },
     {
-      "id": "mpu6050", "name": "MPU6050 accel/gyro (I2C)", "status": "planned", "protocol": "I2C",
+      "id": "mpu6050", "name": "MPU6050 accel/gyro (I2C)", "status": "supported", "protocol": "I2C",
       "boards": ["esp32_devkit_v1", "nodemcu_32s", "esp32s2_dev", "esp32s3_dev", "esp32c3_dev", "esp8266_nodemcu"],
-      "pins": { "signal": 2 }, "voltage": "3.3V", "libraries": [{ "arduino": "MPU6050" }, { "arduino": "Adafruit MPU6050" }],
-      "blocks": [], "wiring": "VCC->3V3, GND->GND, SDA->SDA pin, SCL->SCL pin.", "example": null
+      "pins": { "signal": 2 }, "voltage": "3.3V", "libraries": [{ "arduino": "Adafruit MPU6050" }, { "arduino": "Adafruit Unified Sensor" }],
+      "blocks": ["robosiddhi_mpu6050_read"], "wiring": "VCC->3V3, GND->GND, SDA->SDA pin, SCL->SCL pin.", "example": null
     },
     {
-      "id": "oled_ssd1306", "name": "OLED SSD1306 128x64 (I2C)", "status": "planned", "protocol": "I2C",
+      "id": "oled_ssd1306", "name": "OLED SSD1306 128x64 (I2C)", "status": "supported", "protocol": "I2C",
       "boards": ["esp32_devkit_v1", "nodemcu_32s", "esp32s2_dev", "esp32s3_dev", "esp32c3_dev", "esp8266_nodemcu"],
       "pins": { "signal": 2 }, "voltage": "3.3V", "libraries": [{ "arduino": "Adafruit SSD1306" }, { "arduino": "Adafruit GFX Library" }],
-      "blocks": [], "wiring": "VCC->3V3, GND->GND, SDA/SCL to board I2C pins.", "example": null
+      "blocks": ["robosiddhi_oled_init", "robosiddhi_oled_print", "robosiddhi_oled_clear"], "wiring": "VCC->3V3, GND->GND, SDA/SCL to board I2C pins.", "example": "www/examples/esp_oled_hello.xml"
     },
     {
-      "id": "lcd1602_i2c", "name": "LCD 1602 with PCF8574 I2C backpack", "status": "planned", "protocol": "I2C",
+      "id": "lcd1602_i2c", "name": "LCD 1602 with PCF8574 I2C backpack", "status": "supported", "protocol": "I2C",
       "boards": ["esp32_devkit_v1", "nodemcu_32s", "esp32s2_dev", "esp32s3_dev", "esp32c3_dev", "esp8266_nodemcu"],
       "pins": { "signal": 2 }, "voltage": "5V VCC (backpack), 3.3V-safe SDA/SCL on most",
-      "libraries": [{ "arduino": "LiquidCrystal_I2C" }], "blocks": [], "wiring": "VCC->5V, GND->GND, SDA/SCL.", "example": null
+      "libraries": [{ "arduino": "LiquidCrystal_I2C" }], "blocks": ["robosiddhi_lcd_init", "robosiddhi_lcd_print", "robosiddhi_lcd_clear"], "wiring": "VCC->5V, GND->GND, SDA/SCL.", "example": null
     },
     {
       "id": "relay", "name": "Relay module (optocoupler)", "status": "supported",
@@ -122,16 +122,16 @@
       "example": null
     },
     {
-      "id": "dc_motor_l298n", "name": "DC motor via L298N/L293D", "status": "planned", "protocol": "2x DIR + PWM",
+      "id": "dc_motor_l298n", "name": "DC motor via L298N/L293D", "status": "supported", "protocol": "2x DIR + PWM",
       "boards": ["esp32_devkit_v1", "nodemcu_32s"], "pins": { "signal": 3 },
       "voltage": "Motor supply separate; common GND; ESP signals 3.3V OK for most drivers",
-      "libraries": [], "blocks": [], "wiring": "ENA->PWM GPIO, IN1/IN2->GPIO, motor supply to driver.", "example": null
+      "libraries": [], "blocks": ["robosiddhi_motor_l298n"], "wiring": "ENA->PWM GPIO, IN1/IN2->GPIO, motor supply to driver.", "example": null
     },
     {
-      "id": "wifi", "name": "Wi-Fi + HTTP/MQTT", "status": "planned", "protocol": "WiFi",
+      "id": "wifi", "name": "Wi-Fi + HTTP/MQTT", "status": "supported", "protocol": "WiFi",
       "boards": ["esp32_devkit_v1", "nodemcu_32s", "esp32s2_dev", "esp32s3_dev", "esp32c3_dev", "esp8266_nodemcu"],
-      "pins": { "signal": 0 }, "voltage": "", "libraries": [{ "arduino": "WiFi (ESP32)" }, { "arduino": "ESP8266WiFi (ESP8266)" }, { "arduino": "PubSubClient" }],
-      "blocks": [], "wiring": "No wiring. ADC2 unavailable with Wi-Fi on classic ESP32.", "example": null
+      "pins": { "signal": 0 }, "voltage": "", "libraries": [{ "arduino": "PubSubClient (MQTT only)" }],
+      "blocks": ["robosiddhi_wifi_connect", "robosiddhi_http_get", "robosiddhi_mqtt_publish"], "wiring": "No wiring. ADC2 unavailable with Wi-Fi on classic ESP32.", "example": "www/examples/esp_wifi_http.xml"
     }
   ]
 }

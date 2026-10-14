@@ -1,109 +1,95 @@
 /**
  * @license
- * Copyright 2020 Sébastien CANET
+ * Copyright 2020 Sébastien CANET + RoboSiddhi contributors
  * SPDX-License-Identifier: BSD-3-Clause
  */
 
 /**
- * @fileoverview Utility functions for handling serial communication & plotter.
- * @author scanet@libreduc.cc (Sébastien CANET)
+ * @fileoverview Serial monitor window (secure renderer).
+ * The serial port is owned by the main process; lines stream in via events.
  */
- 
-var {ipcRenderer, dialog} = require("electron");
-var fs = require('fs-extra');
 
-window.addEventListener('load', function load(event) {
+window.addEventListener('load', function load() {
     var serialConnected = false;
-    // prepare serial window
     var serialConnectSpeedMenu = document.getElementById('serialConnectSpeed_Menu');
-    var serialConnectSpeedAvailable = JSON.parse(localStorage.getItem("availableSpeed"));
-    serialConnectSpeedAvailable.forEach(function (serialConnectSpeedAvailable) {
-        var option = document.createElement('option');
-        option.value = serialConnectSpeedAvailable;
-        option.text = serialConnectSpeedAvailable;
-        serialConnectSpeedMenu.appendChild(option);
-    });
+    try {
+        var speeds = JSON.parse(localStorage.getItem('availableSpeed')) || [115200];
+        speeds.forEach(function (s) {
+            var option = document.createElement('option');
+            option.value = s;
+            option.text = s;
+            serialConnectSpeedMenu.appendChild(option);
+        });
+    } catch (e) {}
     var graph = false;
     document.getElementById('btn_serialSend').disabled = true;
     document.getElementById('btn_serialPeekClear').onclick = function () {
         document.getElementById('serialPeek').textContent = '';
-        line0.data = [];
+        try { line0.data = []; } catch (e) {}
     };
     document.getElementById('btn_serialSend').onclick = function () {
         var input = document.getElementById('serialSendBox').value;
-        if (SerialPortToMonitor.isOpen) {
-            document.getElementById('serialPeek').innerHTML += input + "<br>";
-            SerialPortToMonitor.write(input);
+        if (serialConnected) {
+            document.getElementById('serialPeek').innerHTML += input.replace(/</g, '&lt;') + '<br>';
+            window.RoboSiddhi.monitor.write(input);
         }
     };
-    document.getElementById('btn_serialConnect').onclick = function () {
-        const { SerialPort } = require('serialport');
-        const { ReadlineParser } = require('@serialport/parser-readline');
-        var baud = parseInt(document.getElementById('serialConnectSpeed_Menu').value);
-        var comPortToUse = localStorage.getItem("comPort");
-        // serialport >=10: new SerialPort({ path, baudRate })
-        var openOpts = { path: comPortToUse, baudRate: baud, autoOpen: false };
-        let SerialPortToMonitor;
-        try {
-            SerialPortToMonitor = new SerialPort(openOpts);
-        } catch (e) {
-            // fallback for serialport <10 positional API
-            SerialPortToMonitor = new SerialPort(comPortToUse, { autoOpen: false, baudRate: baud });
+    function monLine(data) {
+        if (!serialConnected) return;
+        var peek = document.getElementById('serialPeek');
+        var div = document.createElement('div');
+        div.textContent = data;
+        peek.appendChild(div);
+        peek.scrollTop = peek.scrollHeight;
+        var num = parseFloat(data);
+        if (!isNaN(num)) {
+            try {
+                document.getElementById('serialSendBox').value = num;
+                smoothieChart.start();
+            } catch (e) {}
         }
-        var parser = SerialPortToMonitor.pipe(new ReadlineParser({ delimiter: '\n' }))
+    }
+    window.RoboSiddhi.monitor.onData(monLine);
+    window.RoboSiddhi.monitor.onEvent(function (msg) {
+        var peek = document.getElementById('serialPeek');
+        var div = document.createElement('div');
+        div.textContent = msg;
+        peek.appendChild(div);
+    });
+    document.getElementById('btn_serialConnect').onclick = function () {
+        var baud = parseInt(document.getElementById('serialConnectSpeed_Menu').value, 10);
+        var comPortToUse = localStorage.getItem('comPort');
         if (!serialConnected) {
-            document.getElementById('btn_serialConnect').innerHTML = MSG['serial_btn_stop'];
-            document.getElementById('btn_serialSend').disabled = false;
-            SerialPortToMonitor.open(function (err) {
-                document.getElementById('serialPeek').innerHTML += MSG['serial_info_start']
-                });
-            serialConnected = true;
-            parser.on('data', function (data) {
-				if (serialConnected){
-                    document.getElementById('serialSendBox').value = parseInt(data, 10);
-                    smoothieChart.start();
-                    document.getElementById('serialPeek').innerHTML += data + "<br>";
-                    document.getElementById('serialPeek').scrollTop = document.getElementById('serialPeek').scrollHeight;
-                    document.getElementById('serialPeek').animate({
-                        scrollTop: document.getElementById('serialPeek').scrollHeight
-                    });
-                }
+            window.RoboSiddhi.monitor.open(comPortToUse, baud).then(function () {
+                serialConnected = true;
+                document.getElementById('btn_serialConnect').innerHTML = MSG['serial_btn_stop'];
+                document.getElementById('btn_serialSend').disabled = false;
+                try { smoothieChart.start(); } catch (e) {}
+            }).catch(function (err) {
+                var peek = document.getElementById('serialPeek');
+                var div = document.createElement('div');
+                div.textContent = 'open failed: ' + ((err && err.message) || err);
+                peek.appendChild(div);
             });
-            smoothieChart.start();
         } else {
+            window.RoboSiddhi.monitor.close();
+            serialConnected = false;
             document.getElementById('btn_serialConnect').innerHTML = MSG['serial_btn_start'];
             document.getElementById('btn_serialSend').disabled = true;
-            SerialPortToMonitor.close(function (err) {
-                document.getElementById('serialPeek').innerHTML += MSG['serial_info_stop'];
-            });
-            serialConnected = false;
-            smoothieChart.stop();
+            try { smoothieChart.stop(); } catch (e) {}
         }
     };
-	document.getElementById('btn_serialPeekCSV').onclick = function(event) {
-		ipcRenderer.send('save-csv');
-		var code = document.getElementById('serialPeek').innerHTML;
-		code = code.split('<br>');
-        fs.writeFile('./toto.csv', code);
-	}
-	ipcRenderer.on('saved-csv', function(event, savePath){
-		var code = document.getElementById('serialPeek').innerHTML;
-		code = code.split('<br>').join('\n');
-		if (savePath === null) {
-			return;
-		} else {
-			fs.writeFile(savePath, code, function(err){
-				if (err) return console.log(err);
-			})
-		}
-	})
+    document.getElementById('btn_serialPeekCSV').onclick = function () {
+        var text = document.getElementById('serialPeek').innerText || '';
+        window.RoboSiddhi.saveText(text, 'robosiddhi-log.csv');
+    };
     document.getElementById('btn_serialChart').onclick = function () {
         if (!graph) {
-            document.getElementById('serialPeek').style.width = "120px";
+            document.getElementById('serialPeek').style.width = '120px';
             document.getElementById('serialGraphWindow').style.display = 'block';
             graph = true;
         } else {
-            document.getElementById('serialPeek').style.width = "610px";
+            document.getElementById('serialPeek').style.width = '610px';
             document.getElementById('serialGraphWindow').style.display = 'none';
             graph = false;
         }

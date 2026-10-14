@@ -281,17 +281,14 @@ Code.uploadCodeFile = function () {
 Code.uploadCode = function (code, boardId, mode, callback) {
     //var spinner = new Spinner().spin(target);
 
+    // ESP-only (Arduino AVR removed). Legacy HTTP path, overridden by IDE_functions.js.
     var boardSpecs = {
-        "arduino_leonardo": "arduino:avr:leonardo",
-        "arduino_mega": "arduino:avr:mega",
-        "arduino_micro": "arduino:avr:micro",
-        "arduino_mini": "arduino:avr:mini",
-        "arduino_nano": "arduino:avr:nano",
-        "arduino_pro8": "arduino:avr:pro",
-        "arduino_pro16": "arduino:avr:pro",
-        "arduino_uno": "arduino:avr:uno",
-        "arduino_yun": "arduino:avr:yun",
-        "lilypad": "arduino:avr:lilypad"
+        "esp32_devkit_v1": "esp32:esp32:esp32",
+        "nodemcu_32s": "esp32:esp32:nodemcu-32s",
+        "esp32s2_dev": "esp32:esp32:esp32s2",
+        "esp32s3_dev": "esp32:esp32:esp32s3",
+        "esp32c3_dev": "esp32:esp32:esp32c3",
+        "esp8266_nodemcu": "esp8266:esp8266:nodemcuv2"
     };
     var url = "http://127.0.0.1:8080/" + mode + "/";
     var method = "POST";

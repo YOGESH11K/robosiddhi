@@ -25,7 +25,9 @@
     "build": {
         "asar": true,
         "asarUnpack": [
-            "**/node_modules/@serialport/bindings-cpp/**"
+            "**/node_modules/@serialport/bindings-cpp/**",
+            "**/compiler/arduino-cli.exe",
+            "**/compiler/packages/**"
         ],
         "appId": "com.robosiddhi.app",
         "directories": {

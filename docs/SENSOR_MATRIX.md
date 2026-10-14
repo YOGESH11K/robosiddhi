@@ -16,10 +16,10 @@ Registry: `www/blocklyduino/components_registry.json`. Blocks: `www/blocklyduino
 | DS18B20 | supported | ds18b20_* (legacy) | OneWire + DallasTemperature | all ESP |
 | Servo SG90 | supported | servo_* (legacy) | ESP32Servo / Servo | all ESP, separate 5V |
 | Relay module | supported | RELAY_* (legacy) | — | all ESP. Mains only by qualified person |
-| MPU6050 | planned | — | MPU6050 / Adafruit MPU6050 | pin-compatible, blocks TBD |
-| OLED SSD1306 I2C | planned | — | Adafruit SSD1306 + GFX | TBD |
-| LCD1602 I2C | planned | — | LiquidCrystal_I2C | TBD |
-| DC motor L298N | planned | — | — | TBD |
-| Wi-Fi/HTTP/MQTT | planned | — | WiFi / PubSubClient | TBD (ADC2 note) |
+| MPU6050 | supported | robosiddhi_mpu6050_read | Adafruit MPU6050 + Unified Sensor | all ESP |
+| OLED SSD1306 I2C | supported | robosiddhi_oled_init/print/clear | Adafruit SSD1306 + GFX | all ESP |
+| LCD1602 I2C | supported | robosiddhi_lcd_init/print/clear | LiquidCrystal_I2C | all ESP |
+| DC motor L298N | supported | robosiddhi_motor_l298n | — | ESP32 DevKit/NodeMCU-32S (pins generalized, works on all ESP) |
+| Wi-Fi/HTTP/MQTT | supported | robosiddhi_wifi_connect/http_get/mqtt_publish | PubSubClient (MQTT) | all ESP |
 
-Planned = shown as Coming Soon, no fake blocks.
+No Planned entries remain in the registry.

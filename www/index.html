@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="google" value="notranslate">
         <meta http-equiv="X-Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-        <title>blocklyduino</title>
+        <title>RoboSiddhi ESP IDE</title>
         <link rel="icon" type="image/png" href="./blocklyduino/media/logo_only.png" />
         <link rel="stylesheet" href="./css/font_awesome_all.min.css" />
         <link rel="stylesheet" href="./css/keyboard_nav.css" />
@@ -246,16 +246,6 @@
                     <form id="options">
                         <select id="boardMenu" style='display:none'>
                             <option value="none" selected="selected">...</option>
-                            <option value="arduino_leonardo">Arduino Leonardo</option>
-                            <option value="arduino_mega">Arduino Mega</option>
-                            <option value="arduino_micro">Arduino Micro</option>
-                            <option value="arduino_mini">Arduino Mini</option>
-                            <option value="arduino_nano">Arduino Nano</option>
-                            <option value="arduino_pro8">Arduino Pro Mini 3.3V</option>
-                            <option value="arduino_pro16">Arduino Pro Mini 5V</option>
-                            <option value="arduino_uno">Arduino Uno</option>
-                            <option value="arduino_yun">Arduino Yùn</option>
-                            <option value="lilypad">LilyPad</option>
                             <option value="esp32_devkit_v1">ESP32 Dev Module</option>
                             <option value="nodemcu_32s">NodeMCU-32S</option>
                             <option value="esp32s2_dev">ESP32-S2 Dev Module</option>
@@ -460,20 +450,10 @@
                     </div>
                     <div id="hideSelectScrollbar">
                         <select id="boardDescriptionSelector" size="11" onchange="Code.boardDescription()">
-                            <optgroup label="C / C++">
+                            <optgroup label="Select board">
                                 <option value="none" >...</option>
-                            	<option value="arduino_leonardo">Arduino Léonardo</option>
-                            	<option value="arduino_mega">Arduino Mega</option>
-                            	<option value="arduino_micro">Arduino Micro</option>
-                            	<option value="arduino_mini">Arduino Mini</option>
-                            	<option value="arduino_nano">Arduino Nano</option>
-                            	<option value="arduino_pro8">Arduino Pro Mini 3.3V</option>
-                            	<option value="arduino_pro16">Arduino Pro Mini 5V</option>
-                            	<option value="arduino_uno">Arduino Uno</option>
-                            	<option value="arduino_yun">Arduino Yùn</option>
-                            	<option value="lilypad">LilyPad</option>
                             </optgroup>
-                            <optgroup label="ESP32 / ESP8266">
+                            <optgroup label="ESP boards">
                             	<option value="esp32_devkit_v1">ESP32 Dev Module</option>
                             	<option value="nodemcu_32s">NodeMCU-32S</option>
                             	<option value="esp32s2_dev">ESP32-S2 Dev Module</option>
@@ -583,6 +563,8 @@
     <script src="./blocklyduino/blocks/relay/relay.js" async></script>
     <script src="./blocklyduino/blocks/servo/servo.js" async></script>
     <script src="./blocklyduino/blocks/esp/esp_sensors.js" async></script>
+    <script src="./blocklyduino/blocks/esp/esp_display.js" async></script>
+    <script src="./blocklyduino/blocks/esp/esp_comm.js" async></script>
     <script src="./blocklyduino/blocks/typed_variable.js" async></script>
     <!-- blocklyduino specific: common generator code -->
     <script src="./generators/arduino_generator.js"></script>
@@ -602,6 +584,8 @@
     <script src="./blocklyduino/arduino/addon/relay.js" async></script>
     <script src="./blocklyduino/arduino/addon/servo.js" async></script>
     <script src="./blocklyduino/arduino/esp/esp_sensors.js" async></script>
+    <script src="./blocklyduino/arduino/esp/esp_display.js" async></script>
+    <script src="./blocklyduino/arduino/esp/esp_comm.js" async></script>
     <!-- blocklyduino specific -->
     <!-- Blockly themes added -->
     <script src="./blocklyduino/themes/bw.js" async></script>
@@ -632,7 +616,7 @@
         });
         editor.findNext();
         editor.findPrevious();
-        require('../CLI_functions.js');
-        require('../IDE_functions.js');
     </script>
+    <script src="../CLI_functions.js"></script>
+    <script src="../IDE_functions.js"></script>
 </HTML>

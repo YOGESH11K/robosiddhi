@@ -35,9 +35,7 @@
     if (!fqbn) return null;
     if (fqbn.indexOf('esp32:esp32') === 0) return 'esp32:esp32';
     if (fqbn.indexOf('esp8266:esp8266') === 0) return 'esp8266:esp8266';
-    if (fqbn.indexOf('arduino:avr') === 0) return 'arduino:avr';
-    if (fqbn.indexOf('STM32:stm32') === 0) return 'STM32:stm32';
-    return null;
+    return null; // ESP-only IDE: no AVR/STM32 targets
   }
 
   function diagnoseCompilerError(stderr, fqbn) {

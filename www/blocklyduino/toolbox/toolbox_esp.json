@@ -12,6 +12,17 @@ var toolbox_esp = {
     { "kind": "block", "type": "robosiddhi_pir_read" },
     { "kind": "block", "type": "robosiddhi_ldr_read" },
     { "kind": "block", "type": "robosiddhi_soil_read" },
-    { "kind": "block", "type": "robosiddhi_esp_serial_print" }
+    { "kind": "block", "type": "robosiddhi_esp_serial_print" },
+    { "kind": "block", "type": "robosiddhi_mpu6050_read" },
+    { "kind": "block", "type": "robosiddhi_motor_l298n" },
+    { "kind": "block", "type": "robosiddhi_oled_init" },
+    { "kind": "block", "type": "robosiddhi_oled_print" },
+    { "kind": "block", "type": "robosiddhi_oled_clear" },
+    { "kind": "block", "type": "robosiddhi_lcd_init" },
+    { "kind": "block", "type": "robosiddhi_lcd_print" },
+    { "kind": "block", "type": "robosiddhi_lcd_clear" },
+    { "kind": "block", "type": "robosiddhi_wifi_connect" },
+    { "kind": "block", "type": "robosiddhi_http_get" },
+    { "kind": "block", "type": "robosiddhi_mqtt_publish" }
   ]
 };

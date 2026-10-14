@@ -16,8 +16,59 @@ const {
     ipcMain,
     globalShortcut,
     dialog,
-    Tray
+    Tray,
+    webContents
 } = require('electron');
+const path = require('path');
+const { execFile } = require('child_process');
+const { SerialPort } = require('serialport');
+const { ReadlineParser } = require('@serialport/parser-readline');
+let RoboSiddhiBuild = null;
+try { RoboSiddhiBuild = require('./www/blocklyduino/js/robosiddhi_build.js'); } catch (e) { RoboSiddhiBuild = null; }
+
+// ---- RoboSiddhi secure backend (all renderer Node/exec/serial goes through here) ----
+// Writable + executable locations differ between dev and packaged app:
+// - dev: everything next to this file
+// - packaged (app.asar): sketch/tmp go to userData (asar is read-only),
+//   arduino-cli.exe runs from app.asar.unpacked (binaries cannot run inside asar)
+const DEV_MODE = !app.isPackaged;
+function cliExePath() {
+    if (DEV_MODE) return path.join(__dirname, 'compiler', 'arduino-cli.exe');
+    return path.join(process.resourcesPath, 'app.asar.unpacked', 'compiler', 'arduino-cli.exe');
+}
+function sketchDirPath() {
+    if (DEV_MODE) return path.join(__dirname, 'compiler', 'tmp');
+    return path.join(app.getPath('userData'), 'sketch');
+}
+const COMPILER_DIR = path.join(__dirname, 'compiler');
+const SKETCH_DIR = sketchDirPath();
+const SKETCH_FILE = path.join(SKETCH_DIR, 'tmp.ino');
+const REPO_TMP_DIR = DEV_MODE ? path.join(__dirname, 'tmp') : path.join(app.getPath('userData'), 'tmp');
+const CLI_EXE = cliExePath();
+const PORT_RE = /^(COM\d+|\/dev\/tty[A-Za-z0-9._-]+)$/;
+const CORE_RE = /^[A-Za-z0-9_.-]+:[A-Za-z0-9_.-]+$/;
+const LIB_RE = /^[A-Za-z0-9 _+.\-@]+$/;
+const BAUDS = [300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 31250, 38400, 57600, 115200, 74880, 230400, 460800, 921600];
+
+function runCli(args, timeoutMs) {
+    return new Promise((resolve) => {
+        execFile(CLI_EXE, args, { cwd: path.dirname(CLI_EXE), timeout: timeoutMs || 300000, maxBuffer: 8 * 1024 * 1024 }, (error, stdout, stderr) => {
+            if (error && !stdout && !stderr) stderr = String((error && error.message) || error);
+            resolve({ ok: !error, stdout: String(stdout || ''), stderr: String(stderr || '') });
+        });
+    });
+}
+function validFqbn(fqbn) {
+    return typeof fqbn === 'string' && fqbn !== 'none' && /^(esp32:esp32:[A-Za-z0-9_.-]+|esp8266:esp8266:[A-Za-z0-9_.-]+)$/.test(fqbn);
+}
+
+// Single active serial-monitor connection (owned by the monitor window)
+let monPort = null, monParser = null, monWcId = null;
+function closeMonitorPort() {
+    try { if (monParser) monParser.removeAllListeners(); } catch (e) {}
+    try { if (monPort && monPort.isOpen) monPort.close(() => {}); } catch (e) {}
+    monPort = null; monParser = null; monWcId = null;
+}
 
 let BlocklyWindow = null;
 let SerialWindow = null;
@@ -35,8 +86,9 @@ function createBlocklyWindow() {
         width: 1510,
         height: 700,
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true,
             sandbox: false
         },
         // icon: __dirname + '/www/blocklyduino/media/icon.ico'
@@ -108,8 +160,9 @@ function createSerialWindow(argLangChoice) {
         height: 530,
         'parent': BlocklyWindow,
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true,
             sandbox: false
         },
         resizable: false,
@@ -123,6 +176,7 @@ function createSerialWindow(argLangChoice) {
     SerialWindow.loadURL(`file://${__dirname}` + url);
     SerialWindow.setMenu(null);
     SerialWindow.on('closed', function () {
+        try { closeMonitorPort(); } catch (e) {}
         SerialWindow = null;
     });
     // devtools = new BrowserWindow();
@@ -138,8 +192,9 @@ function createHackCableWindow(argLangChoice) {
         height: 640,
         'parent': BlocklyWindow,
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true,
             sandbox: false
         },
         resizable: true,
@@ -161,8 +216,9 @@ function createFactoryWindow(argLangChoice) {
         height: 640,
         'parent': BlocklyWindow,
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true,
             sandbox: false
         },
         resizable: true,
@@ -184,8 +240,9 @@ function createBlocklyHtmlWindow(argLangChoice) {
         height: 640,
         'parent': BlocklyWindow,
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false,
+            preload: path.join(__dirname, 'preload.js'),
+            nodeIntegration: false,
+            contextIsolation: true,
             sandbox: false
         },
         resizable: true,
@@ -217,8 +274,8 @@ app.on('ready', () => {
     createBlocklyWindow();
     globalShortcut.register('F8', openDevTools);
     globalShortcut.register('F5', refresh);
-    tray = new Tray('./www/blocklyduino/media/logo_only.png');
-    tray.setToolTip('BlocklyDuino');
+    tray = new Tray(path.join(__dirname, 'www', 'blocklyduino', 'media', 'logo_only.png'));
+    tray.setToolTip('RoboSiddhi ESP IDE');
 });
 
 app.on('activate', function () {
@@ -231,27 +288,117 @@ app.on('window-all-closed', function () {
         app.quit();
 });
 
-ipcMain.on("serialConnect", (event, argLangChoice) => {
-    createSerialWindow(argLangChoice);
+// Echo renderer console to the terminal for diagnostics (launch verification, user support)
+app.on('browser-window-created', (_e, win) => {
+    try {
+        win.webContents.on('console-message', (_ev, _level, message) => {
+            console.log('[renderer]', message);
+        });
+    } catch (e) {}
 });
-ipcMain.on("hackCable", (event, argLangChoice) => {
-    createHackCableWindow(argLangChoice);
+
+// ---- Validated IPC: the ONLY privileged surface exposed to renderers (see preload.js) ----
+ipcMain.handle('rs-ports', async () => {
+    const ports = await SerialPort.list();
+    return ports.map((p) => ({ path: p.path, manufacturer: p.manufacturer || '', vendorId: p.vendorId || '', productId: p.productId || '' }));
 });
-ipcMain.on("blockFactory", (event, argLangChoice) => {
-    createFactoryWindow(argLangChoice);
+
+ipcMain.handle('rs-write-sketch', async (_e, code) => {
+    if (typeof code !== 'string' || code.length > 500000) throw new Error('Sketch rejected (not text or too large).');
+    fs.ensureDirSync(SKETCH_DIR);
+    fs.writeFileSync(SKETCH_FILE, code);
+    return { ok: true };
 });
-ipcMain.on("blocklyHTML", (event, argLangChoice) => {
-    createBlocklyHtmlWindow(argLangChoice);
+
+ipcMain.handle('rs-compile', async (_e, args) => {
+    args = args || {};
+    if (!validFqbn(args.fqbn)) throw new Error('Select an ESP board first.');
+    const cmd = ['compile'];
+    if (args.verbose) cmd.push('-v');
+    cmd.push('-b', args.fqbn, SKETCH_DIR);
+    return runCli(cmd);
 });
-ipcMain.on('save-csv', function(event) {
-	var filename = dialog.showSaveDialog(BlocklyWindow,{
-		title: 'Export CSV',
-		defaultPath: './',
-		filters: [{ name: 'data', extensions: ['csv'] }]
-	},
-	function(filename){
-		event.sender.send('saved-csv', filename)
-	})
-})
+
+ipcMain.handle('rs-upload', async (_e, args) => {
+    args = args || {};
+    if (!validFqbn(args.fqbn)) throw new Error('Select an ESP board first.');
+    if (typeof args.port !== 'string' || !PORT_RE.test(args.port)) throw new Error('Select a valid serial port first.');
+    const cmd = ['upload', '-p', args.port];
+    if (args.verbose) cmd.push('-v');
+    cmd.push('-b', args.fqbn, SKETCH_DIR);
+    return runCli(cmd);
+});
+
+ipcMain.handle('rs-cli', async (_e, req) => {
+    req = req || {};
+    if (req.op === 'update-index') return runCli(['core', 'update-index'], 180000);
+    if (req.op === 'board-list') return runCli(['board', 'list'], 60000);
+    if (req.op === 'clean-cache') { fs.emptyDirSync(REPO_TMP_DIR); return { ok: true, stdout: 'cache cleaned', stderr: '' }; }
+    if (req.op === 'core-install' && typeof req.arg === 'string' && CORE_RE.test(req.arg.trim())) {
+        return runCli(['core', 'install', req.arg.trim()], 600000);
+    }
+    if (req.op === 'lib-search' && typeof req.arg === 'string' && LIB_RE.test(req.arg.trim())) {
+        return runCli(['lib', 'search', req.arg.trim()], 120000);
+    }
+    if (req.op === 'lib-install' && typeof req.arg === 'string' && LIB_RE.test(req.arg.trim())) {
+        return runCli(['lib', 'install', req.arg.trim()], 600000);
+    }
+    throw new Error('CLI request rejected (unknown op or unsafe argument).');
+});
+
+ipcMain.on('rs-open-tool', (event, req) => {
+    req = req || {};
+    const lang = typeof req.lang === 'string' ? req.lang : 'en';
+    if (req.tool === 'serial') createSerialWindow(lang);
+    else if (req.tool === 'hackcable') createHackCableWindow(lang);
+    else if (req.tool === 'factory') createFactoryWindow(lang);
+    else if (req.tool === 'html') createBlocklyHtmlWindow(lang);
+});
+
+ipcMain.handle('rs-mon-open', async (event, req) => {
+    req = req || {};
+    if (typeof req.port !== 'string' || !PORT_RE.test(req.port)) throw new Error('Select a valid serial port first.');
+    const baud = parseInt(req.baud, 10);
+    if (!BAUDS.includes(baud)) throw new Error('Unsupported baud rate.');
+    closeMonitorPort();
+    monWcId = event.sender.id;
+    monPort = new SerialPort({ path: req.port, baudRate: baud, autoOpen: false });
+    monParser = monPort.pipe(new ReadlineParser({ delimiter: '\n' }));
+    monParser.on('data', (line) => {
+        try {
+            const wc = webContents.fromId(monWcId);
+            if (wc && !wc.isDestroyed()) wc.send('rs-mon-data', String(line));
+        } catch (e) {}
+    });
+    monPort.on('error', (err) => {
+        try {
+            const wc = webContents.fromId(monWcId);
+            if (wc && !wc.isDestroyed()) wc.send('rs-mon-event', 'port error: ' + (err && err.message));
+        } catch (e) {}
+    });
+    await new Promise((resolve, reject) => { monPort.open((err) => { if (err) reject(err); else resolve(); }); });
+    return { ok: true };
+});
+
+ipcMain.handle('rs-mon-close', async () => { closeMonitorPort(); return { ok: true }; });
+
+ipcMain.on('rs-mon-write', (_e, data) => {
+    try { if (monPort && monPort.isOpen) monPort.write(String(data)); } catch (e) {}
+});
+
+ipcMain.handle('rs-save-text', async (event, req) => {
+    req = req || {};
+    const text = typeof req.text === 'string' ? req.text : '';
+    if (text.length > 5000000) throw new Error('Content too large to save.');
+    let win = null;
+    try { win = BrowserWindow.fromWebContents(event.sender); } catch (e) {}
+    const res = await dialog.showSaveDialog(win || null, {
+        title: 'Save', defaultPath: req.defaultName || 'robosiddhi.csv',
+        filters: [{ name: 'data', extensions: ['csv', 'txt', 'log'] }]
+    });
+    if (res.canceled || !res.filePath) return { saved: false };
+    fs.writeFileSync(res.filePath, text);
+    return { saved: true, path: res.filePath };
+});
 module.exports.openDevTools = openDevTools;
 module.exports.refresh = refresh;

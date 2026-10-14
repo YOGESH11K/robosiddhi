@@ -109,19 +109,20 @@ test('toolbox_esp.json valid', () => {
   assert.ok(m, 'toolbox_esp var wrapper');
   const tb = JSON.parse(m[1]);
   assert.strictEqual(tb.toolboxitemid, 'ESP');
-  assert.ok(tb.contents.length >= 8);
+  assert.ok(tb.contents.length >= 19, 'ESP toolbox has all blocks, got ' + tb.contents.length);
 });
 
-// 7. Boards.json still parses + has esp8266 after patch
-test('boards.json parses', () => {
+// 7. Boards.json parses + ESP-only (no Arduino AVR)
+test('boards.json parses, ESP-only', () => {
   const fs = require('fs');
   const raw = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/js/boards.json'), 'utf8');
   const m = raw.match(/var profile = (\{[\s\S]*\})\s*;?\s*$/);
   assert.ok(m, 'boards.json wrapper');
   const profile = JSON.parse(m[1]);
   assert.ok(profile.esp32_devkit_v1, 'esp32 present');
-  // esp8266 added by this branch — warn if missing but do not fail fresh checkout
-  if (!profile.esp8266_nodemcu) console.log('  (note: esp8266_nodemcu not yet in boards.json — run patch step)');
+  assert.ok(profile.esp8266_nodemcu, 'esp8266 present');
+  const avr = Object.keys(profile).filter(k => k.startsWith('arduino_') || k === 'lilypad');
+  assert.strictEqual(avr.length, 0, 'AVR removed, found: ' + avr.join(','));
 });
 
 // 8. Generator smoke test with stubbed Blockly.Arduino
@@ -160,9 +161,52 @@ test('project schema round-trips', () => {
 });
 test('examples exist and parse as XML', () => {
   const fs = require('fs');
-  ['esp_blink.xml', 'esp_temp_alarm.xml', 'esp_autolight.xml', 'esp_obstacle.xml', 'esp_soil.xml', 'esp_motion.xml'].forEach(f => {
+  ['esp_blink.xml', 'esp_temp_alarm.xml', 'esp_autolight.xml', 'esp_obstacle.xml', 'esp_soil.xml', 'esp_motion.xml', 'esp_oled_hello.xml', 'esp_wifi_http.xml'].forEach(f => {
     const s = fs.readFileSync(path.join(__dirname, '../www/examples/' + f), 'utf8');
     assert.ok(s.includes('<xml') && s.includes('base_setup_loop'), f);
+  });
+  // every registry example path must exist on disk
+  const reg = require('../www/blocklyduino/components_registry.json');
+  reg.components.forEach(c => {
+    if (c.example) assert.ok(fs.existsSync(path.join(__dirname, '..', c.example)), c.id + ' example missing: ' + c.example);
+  });
+});
+
+// 10. New display/comm generators
+test('display+comm generators emit correct includes', () => {
+  const fs = require('fs');
+  const disp = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/arduino/esp/esp_display.js'), 'utf8');
+  assert.ok(disp.includes('Adafruit_SSD1306.h') && disp.includes('LiquidCrystal_I2C.h'));
+  const comm = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/arduino/esp/esp_comm.js'), 'utf8');
+  assert.ok(comm.includes('#ifdef ESP32') && comm.includes('ESP8266WiFi.h') && comm.includes('PubSubClient.h'));
+  assert.ok(comm.includes('Adafruit_MPU6050.h') && comm.includes('analogWrite('));
+});
+test('index.html has no AVR options, loads ESP scripts as tags', () => {
+  const fs = require('fs');
+  const html = fs.readFileSync(path.join(__dirname, '../www/index.html'), 'utf8');
+  assert.ok(!/value="arduino_/.test(html) && !/value="lilypad"/.test(html), 'AVR options removed');
+  ['esp_display.js', 'esp_comm.js'].forEach(f => {
+    assert.ok(html.includes('<script src="./blocklyduino/blocks/esp/' + f + '"'), 'blocks ' + f);
+    assert.ok(html.includes('<script src="./blocklyduino/arduino/esp/' + f + '"'), 'gen ' + f);
+  });
+  assert.ok(!html.includes("require('../CLI_functions.js')"), 'no renderer require left in index');
+});
+test('main.js is secure: preload + isolation, no nodeIntegration', () => {
+  const fs = require('fs');
+  const main = fs.readFileSync(path.join(__dirname, '../main.js'), 'utf8');
+  assert.ok(main.includes("preload.js"), 'preload set');
+  assert.ok(main.includes('nodeIntegration: false') && main.includes('contextIsolation: true'));
+  assert.ok(!/nodeIntegration:\s*true/.test(main), 'nodeIntegration true gone');
+  ['rs-compile', 'rs-upload', 'rs-ports', 'rs-mon-open', 'rs-cli'].forEach(ch => {
+    assert.ok(main.includes("'" + ch + "'"), 'handler ' + ch);
+  });
+});
+test('renderers use bridge only (no Node require)', () => {
+  const fs = require('fs');
+  ['IDE_functions.js', 'CLI_functions.js', 'serialMonitor.js'].forEach(f => {
+    const src = fs.readFileSync(path.join(__dirname, '..', f), 'utf8');
+    assert.ok(!/require\(['"](electron|serialport|child_process|fs-extra)['"]/.test(src), f + ' must not require Node modules');
+    assert.ok(src.includes('window.RoboSiddhi') || src.includes('RoboSiddhi'), f + ' uses bridge');
   });
 });
 

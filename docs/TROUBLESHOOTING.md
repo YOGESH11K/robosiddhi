@@ -16,7 +16,7 @@
 
 ## Upload failures
 - No COM: driver missing, charge-only cable, hub. Use short data cable, direct port.
-- Port busy: close Serial Monitor / Arduino IDE / Putty.
+- Port busy: close Serial Monitor / Putty / any other serial program holding the COM port.
 - `failed to connect / timed out`: hold BOOT during upload on bare modules; DevKits auto-reset.
 - Wrong board: FQBN must match chip (S3 firmware on C3 fails). Re-select board.
 - Missing `.h`: install library via CLI panel (error box now suggests exact command).
