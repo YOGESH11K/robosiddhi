@@ -156,11 +156,24 @@ Code.boardDescription = function () {
     var boardValue = document.getElementById("boardDescriptionSelector").value;
     if (boardValue === '')
         boardValue = 'none';
-    document.getElementById("board_mini_picture").setAttribute("src", profile[boardValue][0]['picture']);
-    document.getElementById("board_connect").textContent = profile[boardValue][0]['usb'];
-    document.getElementById("board_cpu").textContent = profile[boardValue][0]['cpu'];
-    document.getElementById("board_voltage").textContent = profile[boardValue][0]['voltage'];
-    document.getElementById("board_inout").textContent = profile[boardValue][0]['inout'];
+    var prof = profile[boardValue][0] || {};
+    function setText(id, val) {
+        var el = document.getElementById(id);
+        if (!el) return;
+        el.textContent = (val === undefined || val === null || val === '') ? '-' : val;
+    }
+    function joinList(list) {
+        if (!list || !list.length) return '-';
+        return list.join(', ');
+    }
+    document.getElementById("board_mini_picture").setAttribute("src", prof['picture']);
+    setText("boardModal_connect_span", prof['description']);
+    setText("boardModal_cpu_span", prof['cpu']);
+    setText("boardModal_speed_span", prof['speed']);
+    setText("boardModal_inout_span", joinList(prof['digital']));
+    setText("boardModal_in_analog_span", joinList(prof['analog']));
+    setText("boardModal_out_analog_span", joinList(prof['PWM']));
+    setText("boardModal_voltage_span", prof['voltage'] || '3.3V logic');
 };
 
 /**

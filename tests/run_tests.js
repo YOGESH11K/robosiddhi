@@ -211,8 +211,7 @@ test('main.js is secure: preload + isolation, no nodeIntegration', () => {  cons
     assert.ok(main.includes("'" + ch + "'"), 'handler ' + ch);
   });
 });
-test('upload always compiles fresh before flashing (no stale cache)', () => {
-  const fs = require('fs');
+test('upload always compiles fresh before flashing (no stale cache)', () => {  const fs = require('fs');
   const main = fs.readFileSync(path.join(__dirname, '../main.js'), 'utf8');
   const h = main.match(/handle\('rs-upload'([\s\S]*?)\r?\n\}\);\r?\n/);
   assert.ok(h, 'rs-upload handler found');
@@ -220,6 +219,16 @@ test('upload always compiles fresh before flashing (no stale cache)', () => {
   const ui = h[1].indexOf("'upload'");
   assert.ok(ci !== -1 && ui !== -1 && ci < ui, 'rs-upload compiles before uploading');
   assert.ok(/COMPILE FAILED/.test(h[1]), 'compile failure aborts upload');
+});
+test('board modal writes only existing elements (no textContent crash)', () => {
+  const fs = require('fs');
+  const btn = fs.readFileSync(path.join(__dirname, '../www/js/buttons_functions.js'), 'utf8');
+  assert.ok(!/getElementById\("board_(connect|cpu|voltage|inout)"\)/.test(btn), 'dead board IDs gone');
+  assert.ok(btn.includes('boardModal_cpu_span') && btn.includes('boardModal_inout_span'), 'writes real modal IDs');
+  const html = fs.readFileSync(path.join(__dirname, '../www/index.html'), 'utf8');
+  ['boardModal_cpu_span', 'boardModal_inout_span', 'boardModal_in_analog_span', 'boardModal_speed_span'].forEach(id => {
+    assert.ok(html.includes('id="' + id + '"'), 'modal has ' + id);
+  });
 });
 test('renderers use bridge only (no Node require)', () => {
   const fs = require('fs');
