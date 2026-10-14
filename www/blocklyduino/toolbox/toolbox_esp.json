@@ -9,6 +9,7 @@ var toolbox_esp = {
     { "kind": "block", "type": "robosiddhi_buzzer" },
     { "kind": "block", "type": "robosiddhi_dht_read" },
     { "kind": "block", "type": "robosiddhi_hcsr04" },
+    { "kind": "block", "type": "robosiddhi_obstacle_guard" },
     { "kind": "block", "type": "robosiddhi_pir_read" },
     { "kind": "block", "type": "robosiddhi_ldr_read" },
     { "kind": "block", "type": "robosiddhi_soil_read" },

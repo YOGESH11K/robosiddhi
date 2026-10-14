@@ -161,7 +161,7 @@ test('project schema round-trips', () => {
 });
 test('examples exist and parse as XML', () => {
   const fs = require('fs');
-  ['esp_blink.xml', 'esp_temp_alarm.xml', 'esp_autolight.xml', 'esp_obstacle.xml', 'esp_soil.xml', 'esp_motion.xml', 'esp_oled_hello.xml', 'esp_wifi_http.xml', 'esp_led_fade.xml', 'esp_led_on_g2.xml'].forEach(f => {
+  ['esp_blink.xml', 'esp_temp_alarm.xml', 'esp_autolight.xml', 'esp_obstacle.xml', 'esp_soil.xml', 'esp_motion.xml', 'esp_oled_hello.xml', 'esp_wifi_http.xml', 'esp_led_fade.xml', 'esp_led_on_g2.xml', 'esp_obstacle_guard.xml'].forEach(f => {
     const s = fs.readFileSync(path.join(__dirname, '../www/examples/' + f), 'utf8');
     assert.ok(s.includes('<xml') && s.includes('base_setup_loop'), f);
   });
@@ -222,13 +222,18 @@ test('upload always compiles fresh before flashing (no stale cache)', () => {  c
 });
 test('packaged exe resolves beside the binary (extraFiles, not asar)', () => {  const fs = require('fs');
   const main = fs.readFileSync(path.join(__dirname, '../main.js'), 'utf8');
-  assert.ok(main.includes("path.dirname(app.getPath('exe'))"), 'cli path anchored at exe dir');
-  assert.ok(!main.includes('app.asar.unpacked'), 'no asar.unpacked exe path left');
+  assert.ok(main.includes("path.dirname(app.getPath('exe'))"), 'cli path anchored at exe dir');  assert.ok(!main.includes('app.asar.unpacked'), 'no asar.unpacked exe path left');
   const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
   const unpack = JSON.stringify(pkg.build.asarUnpack);
   assert.ok(!/compiler/.test(unpack), 'asarUnpack has no dead compiler entries');
   assert.ok(pkg.build.win.icon.endsWith('.ico'), 'windows icon is .ico');
   assert.ok(main.includes("app.setAppUserModelId('com.robosiddhi.app')"), 'explicit taskbar identity set');
+});
+test('no dead require-based default example (secure renderer safe)', () => {
+  const fs = require('fs');
+  const init = fs.readFileSync(path.join(__dirname, '../www/js/init.js'), 'utf8');
+  assert.ok(!init.includes('loadDefaultExample'), 'dead default-example loader removed');
+  assert.ok(init.includes('ensureSetupLoopBlocks'), 'permanent setup+loop kept');
 });
 test('user logo applied everywhere', () => {
   const fs = require('fs');
@@ -340,16 +345,18 @@ test('logic category curated for ESP LED work', () => {
   });
   const math = std.contents[2];
   assert.strictEqual(math.toolboxitemid, 'MATH');
+  assert.strictEqual(math.name, 'Distance');
   const mathText = JSON.stringify(math);
-  ['math_number', 'math_arithmetic', 'math_random_int', 'math_constrain'].forEach(t => {
-    assert.ok(mathText.includes(t), 'MATH has ' + t);
+  ['robosiddhi_obstacle_guard', 'robosiddhi_hcsr04', 'math_number'].forEach(t => {
+    assert.ok(mathText.includes(t), 'Distance has ' + t);
   });
-  ['math_trig', 'math_single', 'math_constant', 'math_number_property', 'math_on_list', 'math_modulo'].forEach(t => {
-    assert.ok(!mathText.includes(t), 'MATH dropped ' + t);
+  ['math_arithmetic', 'math_random_int', 'math_constrain', 'math_trig', 'math_single', 'math_on_list', 'math_modulo'].forEach(t => {
+    assert.ok(!mathText.includes(t), 'Distance dropped ' + t);
   });
   const gen = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/arduino/esp/esp_sensors.js'), 'utf8');
   assert.ok(gen.includes("Blockly.Arduino['robosiddhi_led_blink']") && gen.includes('delay('));
   assert.ok(gen.includes("Blockly.Arduino['robosiddhi_led_fade']") && gen.includes('analogWrite('));
+  assert.ok(gen.includes("Blockly.Arduino['robosiddhi_obstacle_guard']") && gen.includes('pulseIn(') && gen.includes('delayMicroseconds('));
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

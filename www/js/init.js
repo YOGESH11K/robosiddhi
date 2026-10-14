@@ -33,31 +33,6 @@ Code.loadBlocks = function (defaultXml) {
     }
 };
 
-Code.loadDefaultExample = function () {
-    try {
-        if (Blockly.getMainWorkspace().getTopBlocks(true).length > 0) {
-            return;
-        }
-        var fs = require('fs');
-        var path = require('path');
-        var exFile = path.join(__dirname, 'examples', 'blink.xml');
-        if (!fs.existsSync(exFile)) {
-            return;
-        }
-        var data = fs.readFileSync(exFile, 'utf8');
-        var xml = Blockly.Xml.textToDom(data);
-        Blockly.Xml.domToWorkspace(xml, Code.workspace);
-    } catch (e) {
-        console.log('No default example loaded:', e);
-    }
-};
-
-/**
- * The Arduino sketch always needs a setup() and a loop() structure.
- * This makes sure the "setup" and "loop" blocks are permanently present on
- * the workspace every time (startup, new project, file load...). If a user
- * deletes one of them, it is restored automatically.
- */
 Code.ensureSetupLoopBlocks = function () {
     if (!Code.workspace || Code.setupLoopBusy_) {
         return;
@@ -217,7 +192,6 @@ Code.init = function () {
         // }, 'text');
     } else {
         Code.loadBlocks();
-        Code.loadDefaultExample();
     }
 
     // setup and loop are permanent: always keep them on the workspace

@@ -189,3 +189,21 @@ Blockly.Blocks['robosiddhi_led_fade'] = {
     });
   }
 };
+
+Blockly.Blocks['robosiddhi_obstacle_guard'] = {
+  init: function () {
+    this.appendDummyInput().appendField('Obstacle guard (HC-SR04 + LED)');
+    this.appendDummyInput()
+      .appendField('TRIG').appendField(new Blockly.FieldDropdown(function () { return RoboSiddhiPinOptions('digital_out'); }), 'PIN_TRIG')
+      .appendField('ECHO').appendField(new Blockly.FieldDropdown(function () { return RoboSiddhiPinOptions('digital_in'); }), 'PIN_ECHO')
+      .appendField('LED').appendField(new Blockly.FieldDropdown(function () { return RoboSiddhiPinOptions('digital_out'); }), 'PIN_LED');
+    this.appendDummyInput()
+      .appendField('if closer than').appendField(new Blockly.FieldNumber(10, 2, 400, 1), 'DIST_CM').appendField('cm, LED')
+      .appendField(new Blockly.FieldDropdown([['OFF', 'LOW'], ['ON', 'HIGH']]), 'CLOSE_STAT')
+      .appendField('(else opposite)');
+    this.setPreviousStatement(true, null);
+    this.setNextStatement(true, null);
+    this.setStyle('arduino_blocks');
+    this.setTooltip('One block does it all: measures distance, LED OFF/ON below threshold, opposite above. ECHO is 5V — wire through 1k/2k divider to GPIO!');
+  }
+};

@@ -108,3 +108,25 @@ Blockly.Arduino['robosiddhi_led_fade'] = function (block) {
     '  for (int _rs_b = 255; _rs_b >= 0; _rs_b--) { analogWrite(' + pin + ', _rs_b); delay(_rs_step); }\n' +
     '}\n';
 };
+
+Blockly.Arduino['robosiddhi_obstacle_guard'] = function (block) {
+  var trig = block.getFieldValue('PIN_TRIG') || '4';
+  var echo = block.getFieldValue('PIN_ECHO') || '18';
+  var led = block.getFieldValue('PIN_LED') || '2';
+  var th = parseInt(block.getFieldValue('DIST_CM'), 10);
+  if (isNaN(th)) th = 10;
+  var closeStat = block.getFieldValue('CLOSE_STAT') || 'LOW';
+  var farStat = (closeStat === 'LOW') ? 'HIGH' : 'LOW';
+  Blockly.Arduino.setups_['setup_output_' + trig] = 'pinMode(' + trig + ', OUTPUT);';
+  Blockly.Arduino.setups_['setup_input_' + echo] = 'pinMode(' + echo + ', INPUT);';
+  Blockly.Arduino.setups_['setup_output_' + led] = 'pinMode(' + led + ', OUTPUT);';
+  return '{\n' +
+    '  digitalWrite(' + trig + ', LOW); delayMicroseconds(2);\n' +
+    '  digitalWrite(' + trig + ', HIGH); delayMicroseconds(10);\n' +
+    '  digitalWrite(' + trig + ', LOW);\n' +
+    '  long _rd = pulseIn(' + echo + ', HIGH, 30000);\n' +
+    '  long _cm = (_rd == 0) ? -1 : (long)(_rd * 0.034 / 2);\n' +
+    '  if (_cm != -1 && _cm < ' + th + ') { digitalWrite(' + led + ', ' + closeStat + '); }\n' +
+    '  else { digitalWrite(' + led + ', ' + farStat + '); }\n' +
+    '}\n';
+};
