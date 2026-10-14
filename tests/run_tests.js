@@ -210,5 +210,24 @@ test('renderers use bridge only (no Node require)', () => {
   });
 });
 
+// 11. Dead/non-ESP32 weight stays deleted
+test('dead files stay deleted', () => {
+  const fs = require('fs');
+  const gone = [
+    'www/blocklyduino/blocks/matrix_block.js',
+    'www/blocklyduino/blocks/X-NUCLEO-IKS01A3/X-NUCLEO-IKS01A3.js',
+    'www/blocklyduino/arduino/addon/X-NUCLEO-IKS01A3.js',
+    'www/blocklyduino/toolbox/toolbox_X_NUCLEO_IKS01A3.json',
+    'blocksFactory.js',
+    'compiler/package_stm_index.json'
+  ];
+  gone.forEach(f => assert.ok(!fs.existsSync(path.join(__dirname, '..', f)), f + ' must stay deleted'));
+  assert.ok(!fs.existsSync(path.join(__dirname, '../www/TclHTTPD')), 'TclHTTPD stays deleted');
+  const imgs = fs.readdirSync(path.join(__dirname, '../www/blocklyduino/media/boards'));
+  const bad = imgs.filter(f => /^(arduino_|lilypad|dagu_|dfrobot_|kit_|makeblock_|teensy|peguino_)/.test(f));
+  assert.strictEqual(bad.length, 0, 'dead board images back: ' + bad.join(','));
+  assert.ok(imgs.includes('esp32.jpg') && imgs.includes('esp8266.jpg') && imgs.includes('none.jpg'));
+});
+
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
 process.exit(fail ? 1 : 0);
