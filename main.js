@@ -31,6 +31,7 @@ try { RoboSiddhiBuild = require('./www/blocklyduino/js/robosiddhi_build.js'); } 
 // - dev: everything next to this file
 // - packaged (app.asar): sketch/tmp go to userData (asar is read-only),
 //   arduino-cli.exe runs from app.asar.unpacked (binaries cannot run inside asar)
+// NOTE: resolved lazily (inside handlers) so app.getPath is only called after ready.
 const DEV_MODE = !app.isPackaged;
 function cliExePath() {
     if (DEV_MODE) return path.join(__dirname, 'compiler', 'arduino-cli.exe');
@@ -40,11 +41,11 @@ function sketchDirPath() {
     if (DEV_MODE) return path.join(__dirname, 'compiler', 'tmp');
     return path.join(app.getPath('userData'), 'sketch');
 }
-const COMPILER_DIR = path.join(__dirname, 'compiler');
-const SKETCH_DIR = sketchDirPath();
-const SKETCH_FILE = path.join(SKETCH_DIR, 'tmp.ino');
-const REPO_TMP_DIR = DEV_MODE ? path.join(__dirname, 'tmp') : path.join(app.getPath('userData'), 'tmp');
-const CLI_EXE = cliExePath();
+function sketchFilePath() { return path.join(sketchDirPath(), 'tmp.ino'); }
+function repoTmpPath() {
+    if (DEV_MODE) return path.join(__dirname, 'tmp');
+    return path.join(app.getPath('userData'), 'tmp');
+}
 const PORT_RE = /^(COM\d+|\/dev\/tty[A-Za-z0-9._-]+)$/;
 const CORE_RE = /^[A-Za-z0-9_.-]+:[A-Za-z0-9_.-]+$/;
 const LIB_RE = /^[A-Za-z0-9 _+.\-@]+$/;
@@ -52,7 +53,8 @@ const BAUDS = [300, 600, 1200, 2400, 4800, 9600, 14400, 19200, 28800, 31250, 384
 
 function runCli(args, timeoutMs) {
     return new Promise((resolve) => {
-        execFile(CLI_EXE, args, { cwd: path.dirname(CLI_EXE), timeout: timeoutMs || 300000, maxBuffer: 8 * 1024 * 1024 }, (error, stdout, stderr) => {
+        const exe = cliExePath();
+        execFile(exe, args, { cwd: path.dirname(exe), timeout: timeoutMs || 300000, maxBuffer: 8 * 1024 * 1024 }, (error, stdout, stderr) => {
             if (error && !stdout && !stderr) stderr = String((error && error.message) || error);
             resolve({ ok: !error, stdout: String(stdout || ''), stderr: String(stderr || '') });
         });
@@ -305,8 +307,8 @@ ipcMain.handle('rs-ports', async () => {
 
 ipcMain.handle('rs-write-sketch', async (_e, code) => {
     if (typeof code !== 'string' || code.length > 500000) throw new Error('Sketch rejected (not text or too large).');
-    fs.ensureDirSync(SKETCH_DIR);
-    fs.writeFileSync(SKETCH_FILE, code);
+    fs.ensureDirSync(sketchDirPath());
+    fs.writeFileSync(sketchFilePath(), code);
     return { ok: true };
 });
 
@@ -315,7 +317,7 @@ ipcMain.handle('rs-compile', async (_e, args) => {
     if (!validFqbn(args.fqbn)) throw new Error('Select an ESP board first.');
     const cmd = ['compile'];
     if (args.verbose) cmd.push('-v');
-    cmd.push('-b', args.fqbn, SKETCH_DIR);
+    cmd.push('-b', args.fqbn, sketchDirPath());
     return runCli(cmd);
 });
 
@@ -325,7 +327,7 @@ ipcMain.handle('rs-upload', async (_e, args) => {
     if (typeof args.port !== 'string' || !PORT_RE.test(args.port)) throw new Error('Select a valid serial port first.');
     const cmd = ['upload', '-p', args.port];
     if (args.verbose) cmd.push('-v');
-    cmd.push('-b', args.fqbn, SKETCH_DIR);
+    cmd.push('-b', args.fqbn, sketchDirPath());
     return runCli(cmd);
 });
 
@@ -333,7 +335,7 @@ ipcMain.handle('rs-cli', async (_e, req) => {
     req = req || {};
     if (req.op === 'update-index') return runCli(['core', 'update-index'], 180000);
     if (req.op === 'board-list') return runCli(['board', 'list'], 60000);
-    if (req.op === 'clean-cache') { fs.emptyDirSync(REPO_TMP_DIR); return { ok: true, stdout: 'cache cleaned', stderr: '' }; }
+    if (req.op === 'clean-cache') { fs.emptyDirSync(repoTmpPath()); fs.ensureDirSync(sketchDirPath()); return { ok: true, stdout: 'cache cleaned', stderr: '' }; }
     if (req.op === 'core-install' && typeof req.arg === 'string' && CORE_RE.test(req.arg.trim())) {
         return runCli(['core', 'install', req.arg.trim()], 600000);
     }

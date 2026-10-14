@@ -64,7 +64,6 @@ Code.changeBoard = function ()  {
         search = search.replace(/\?/, '?board=' + newBoard + '&');
     }
     profile["default"] = profile[newBoard][0];
-	document.getElementById("boardDescriptionSelector").selectedIndex = newBoard;
 	document.getElementById("boardDescriptionSelector").value = newBoard;
 	document.getElementById("boardSelected_span").textContent = profile["default"].description;
 	document.getElementById("portSelected_span").textContent = ' : ' + document.getElementById('serialMenu').options[document.getElementById('serialMenu').selectedIndex].value;

@@ -253,6 +253,11 @@ test('toolbox is ESP-only', () => {  const fs = require('fs');
 });
 
 // 13. Logic holds ESP LED set: setup+loop, LED on/off, blink, glow, delay, if/compare
+test('upload reminds board boot step', () => {
+  const fs = require('fs');
+  const src = fs.readFileSync(path.join(__dirname, '../IDE_functions.js'), 'utf8');
+  assert.ok(/RST|replug/i.test(src), 'upload success reminds RST/replug boot step');
+});
 test('logic category curated for ESP LED work', () => {
   const fs = require('fs');
   const raw = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/toolbox/toolbox_standard.json'), 'utf8');

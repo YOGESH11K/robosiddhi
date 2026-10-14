@@ -179,7 +179,7 @@ window.addEventListener('load', function load() {
         window.RoboSiddhi.writeSketch(data).then(function () {
             return window.RoboSiddhi.upload({ fqbn: fqbn, port: comPortSelected, verbose: RoboSiddhiVerbose() });
         }).then(function (res) {
-            if (res.ok) RoboSiddhiShow(RoboSiddhiEsc(res.stdout) + '<br>' + MSG['IDE_upload_ok'], '#00FF00');
+            if (res.ok) RoboSiddhiShow(RoboSiddhiEsc(res.stdout) + '<br>' + MSG['IDE_upload_ok'] + '<br>Program start karne ke liye: board par RST dabao YA USB cable nikalo-lagao.', '#00FF00');
             else RoboSiddhiShow(RoboSiddhiEsc(RoboSiddhiDiagnose(res.stderr, fqbn)), '#FF0000');
         }).catch(function (err) {
             RoboSiddhiShow(RoboSiddhiEsc((err && err.message) || err), '#FF0000');
