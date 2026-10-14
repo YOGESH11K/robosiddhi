@@ -29,13 +29,15 @@ try { RoboSiddhiBuild = require('./www/blocklyduino/js/robosiddhi_build.js'); } 
 // ---- RoboSiddhi secure backend (all renderer Node/exec/serial goes through here) ----
 // Writable + executable locations differ between dev and packaged app:
 // - dev: everything next to this file
-// - packaged (app.asar): sketch/tmp go to userData (asar is read-only),
-//   arduino-cli.exe runs from app.asar.unpacked (binaries cannot run inside asar)
+// - packaged: compiler/ ships via extraFiles next to the exe (outside app.asar,
+//   always executable); sketch/tmp go to userData (install dir may be read-only).
 // NOTE: resolved lazily (inside handlers) so app.getPath is only called after ready.
 const DEV_MODE = !app.isPackaged;
 function cliExePath() {
     if (DEV_MODE) return path.join(__dirname, 'compiler', 'arduino-cli.exe');
-    return path.join(process.resourcesPath, 'app.asar.unpacked', 'compiler', 'arduino-cli.exe');
+    // Packaged: compiler/ ships via extraFiles next to the exe (outside app.asar),
+    // so it runs directly. (extraFiles are excluded from the asar, hence no asarUnpack.)
+    return path.join(path.dirname(app.getPath('exe')), 'compiler', 'arduino-cli.exe');
 }
 function sketchDirPath() {
     if (DEV_MODE) return path.join(__dirname, 'compiler', 'tmp');
