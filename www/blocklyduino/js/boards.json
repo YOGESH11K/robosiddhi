@@ -19,14 +19,36 @@ var profile = {
 			"_id": "none",
 			"analog": [],
 			"cpu": "",
-			"description": "",
+			"description": "No board selected - pick an ESP board first",
 			"digital": [],
-			"dropdownAnalog": [],
-			"dropdownPWM": [],
+			"dropdownAnalog": [
+				[
+					"select board",
+					"36"
+				]
+			],
+			"dropdownDigital": [
+				[
+					"select board",
+					"2"
+				]
+			],
+			"dropdownPWM": [
+				[
+					"select board",
+					"2"
+				]
+			],
 			"interrupt": [],
 			"picture": "./blocklyduino/media/boards/none.jpg",
-			"serial": [],
+			"serial": [
+				[
+					"115200",
+					"115200"
+				]
+			],
 			"serialList": [],
+			"serialPin": [],
 			"serialPin": [],
 			"speed": "",
 			"upload_arg": "none"

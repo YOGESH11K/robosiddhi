@@ -211,8 +211,7 @@ test('renderers use bridge only (no Node require)', () => {
 });
 
 // 11. Dead/non-ESP32 weight stays deleted
-test('dead files stay deleted', () => {
-  const fs = require('fs');
+test('dead files stay deleted', () => {  const fs = require('fs');
   const gone = [
     'www/blocklyduino/blocks/matrix_block.js',
     'www/blocklyduino/blocks/X-NUCLEO-IKS01A3/X-NUCLEO-IKS01A3.js',
@@ -227,6 +226,31 @@ test('dead files stay deleted', () => {
   const bad = imgs.filter(f => /^(arduino_|lilypad|dagu_|dfrobot_|kit_|makeblock_|teensy|peguino_)/.test(f));
   assert.strictEqual(bad.length, 0, 'dead board images back: ' + bad.join(','));
   assert.ok(imgs.includes('esp32.jpg') && imgs.includes('esp8266.jpg') && imgs.includes('none.jpg'));
+  // none profile must carry placeholder dropdowns so blocks construct with no board selected
+  const braw = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/js/boards.json'), 'utf8');
+  const bm = braw.match(/var profile = (\{[\s\S]*\})\s*;?\s*$/);
+  assert.ok(bm, 'boards.json wrapper');
+  const bprof = JSON.parse(bm[1]);
+  const none = bprof.none[0];
+  ['dropdownDigital', 'dropdownPWM', 'dropdownAnalog', 'serial'].forEach(k => {
+    assert.ok(Array.isArray(none[k]) && none[k].length > 0, 'none.' + k + ' placeholder');
+  });
+});
+
+// 12. ESP-only toolbox: no Arduino label, no Relay/Servo categories
+test('toolbox is ESP-only', () => {
+  const fs = require('fs');
+  const en = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/msg/categories_en.js'), 'utf8');
+  const m = en.match(/Blockly\.Msg\.CAT_BOARD = "(.*)";/);
+  assert.ok(m, 'CAT_BOARD found');
+  assert.strictEqual(m[1], 'ESP32');
+  ['fr', 'de', 'es', 'ca', 'ar', 'ja'].forEach(l => {
+    const t = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/msg/categories_' + l + '.js'), 'utf8');
+    assert.ok(!/CAT_BOARD = "Arduino"/.test(t), l + ' still labels board Arduino');
+  });
+  const tb = fs.readFileSync(path.join(__dirname, '../www/js/toolbox.js'), 'utf8');
+  assert.ok(!tb.includes('toolbox_relay') && !tb.includes('toolbox_servo'), 'relay/servo out of default toolbox');
+  assert.ok(tb.includes('toolbox_arduino') && tb.includes('toolbox_esp'), 'ESP32 GPIO + ESP components kept');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

@@ -14,7 +14,7 @@ goog.require('Blockly.Msg');
 Blockly.Msg.CAT_VAR_NUM = "numbers";
 Blockly.Msg.CAT_VAR_TEXT = "text";
 Blockly.Msg.CAT_VAR_BOOLEAN = "boolean";
-Blockly.Msg.CAT_BOARD = "Arduino";
+Blockly.Msg.CAT_BOARD = "ESP32";
 Blockly.Msg.CAT_BOARD_IO = "Input / Output";
 Blockly.Msg.CAT_BOARD_SERIAL = "Serial communication";
 Blockly.Msg.CAT_IKS01A3 = "X-NUCLEO-IKS01A3";

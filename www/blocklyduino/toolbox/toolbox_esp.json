@@ -1,6 +1,6 @@
 var toolbox_esp = {
   "kind": "category",
-  "name": "ESP Sensors",
+  "name": "ESP Components",
   "toolboxitemid": "ESP",
   "colour": "160",
   "contents": [
