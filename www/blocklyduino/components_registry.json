@@ -48,7 +48,7 @@
     {
       "id": "hcsr04", "name": "HC-SR04 ultrasonic", "status": "supported",
       "protocol": "TRIG/ECHO digital timing", "boards": ["esp32_devkit_v1", "nodemcu_32s", "esp32s2_dev", "esp32s3_dev", "esp32c3_dev", "esp8266_nodemcu"],
-      "pins": { "signal": 2 }, "voltage": "VCC 5V. ECHO is 5V — divide to 3.3V (1k/2k) before GPIO.",
+      "pins": { "signal": 2 }, "voltage": "VCC 5V preferred. 3V3-only boards: VCC->3V3 works for short range (<1m), then ECHO is 3.3V-safe direct (NO divider).",
       "libraries": [], "blocks": ["robosiddhi_hcsr04", "robosiddhi_obstacle_guard"],
       "wiring": "VCC->5V, GND->GND, TRIG->GPIO (out), ECHO->divider->GPIO (in). 2cm-400cm.",
       "example": "www/examples/esp_obstacle_guard.xml"
