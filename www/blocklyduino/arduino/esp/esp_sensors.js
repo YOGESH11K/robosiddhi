@@ -126,7 +126,7 @@ Blockly.Arduino['robosiddhi_obstacle_guard'] = function (block) {
     '  digitalWrite(' + trig + ', LOW);\n' +
     '  long _rd = pulseIn(' + echo + ', HIGH, 30000);\n' +
     '  long _cm = (_rd == 0) ? -1 : (long)(_rd * 0.034 / 2);\n' +
-    '  if (_cm != -1 && _cm < ' + th + ') { digitalWrite(' + led + ', ' + closeStat + '); }\n' +
+    '  if (_cm >= 2 && _cm < ' + th + ') { digitalWrite(' + led + ', ' + closeStat + '); }\n' +
     '  else { digitalWrite(' + led + ', ' + farStat + '); }\n' +
     '}\n';
 };

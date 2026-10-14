@@ -357,6 +357,7 @@ test('logic category curated for ESP LED work', () => {
   assert.ok(gen.includes("Blockly.Arduino['robosiddhi_led_blink']") && gen.includes('delay('));
   assert.ok(gen.includes("Blockly.Arduino['robosiddhi_led_fade']") && gen.includes('analogWrite('));
   assert.ok(gen.includes("Blockly.Arduino['robosiddhi_obstacle_guard']") && gen.includes('pulseIn(') && gen.includes('delayMicroseconds('));
+  assert.ok(gen.includes('_cm >= 2'), 'guard ignores phantom sub-2cm readings');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');
