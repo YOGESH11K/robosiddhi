@@ -325,10 +325,18 @@ ipcMain.handle('rs-upload', async (_e, args) => {
     args = args || {};
     if (!validFqbn(args.fqbn)) throw new Error('Select an ESP board first.');
     if (typeof args.port !== 'string' || !PORT_RE.test(args.port)) throw new Error('Select a valid serial port first.');
-    const cmd = ['upload', '-p', args.port];
-    if (args.verbose) cmd.push('-v');
-    cmd.push('-b', args.fqbn, sketchDirPath());
-    return runCli(cmd);
+    // ALWAYS compile fresh first: uploading without rebuild would flash a stale
+    // cached binary (the exact bug users hit: green Upload, old program keeps running).
+    const cargs = ['compile'];
+    if (args.verbose) cargs.push('-v');
+    cargs.push('-b', args.fqbn, sketchDirPath());
+    const c = await runCli(cargs);
+    if (!c.ok) return { ok: false, stdout: c.stdout, stderr: 'COMPILE FAILED - nothing was uploaded. Fix the error above.\n' + c.stderr, phase: 'compile' };
+    const uargs = ['upload', '-p', args.port];
+    if (args.verbose) uargs.push('-v');
+    uargs.push('-b', args.fqbn, sketchDirPath());
+    const u = await runCli(uargs);
+    return { ok: u.ok, stdout: c.stdout + '\n' + u.stdout, stderr: u.stderr, phase: 'upload' };
 });
 
 ipcMain.handle('rs-cli', async (_e, req) => {

@@ -202,8 +202,7 @@ test('index.html has no AVR options, loads ESP scripts as tags', () => {
   });
   assert.ok(!html.includes("require('../CLI_functions.js')"), 'no renderer require left in index');
 });
-test('main.js is secure: preload + isolation, no nodeIntegration', () => {
-  const fs = require('fs');
+test('main.js is secure: preload + isolation, no nodeIntegration', () => {  const fs = require('fs');
   const main = fs.readFileSync(path.join(__dirname, '../main.js'), 'utf8');
   assert.ok(main.includes("preload.js"), 'preload set');
   assert.ok(main.includes('nodeIntegration: false') && main.includes('contextIsolation: true'));
@@ -211,6 +210,16 @@ test('main.js is secure: preload + isolation, no nodeIntegration', () => {
   ['rs-compile', 'rs-upload', 'rs-ports', 'rs-mon-open', 'rs-cli'].forEach(ch => {
     assert.ok(main.includes("'" + ch + "'"), 'handler ' + ch);
   });
+});
+test('upload always compiles fresh before flashing (no stale cache)', () => {
+  const fs = require('fs');
+  const main = fs.readFileSync(path.join(__dirname, '../main.js'), 'utf8');
+  const h = main.match(/handle\('rs-upload'([\s\S]*?)\r?\n\}\);\r?\n/);
+  assert.ok(h, 'rs-upload handler found');
+  const ci = h[1].indexOf("'compile'");
+  const ui = h[1].indexOf("'upload'");
+  assert.ok(ci !== -1 && ui !== -1 && ci < ui, 'rs-upload compiles before uploading');
+  assert.ok(/COMPILE FAILED/.test(h[1]), 'compile failure aborts upload');
 });
 test('renderers use bridge only (no Node require)', () => {
   const fs = require('fs');
