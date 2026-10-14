@@ -170,6 +170,17 @@ test('examples exist and parse as XML', () => {
   reg.components.forEach(c => {
     if (c.example) assert.ok(fs.existsSync(path.join(__dirname, '..', c.example)), c.id + ' example missing: ' + c.example);
   });
+  // led-examples folder: 5 LED programs, all GPIO2, all with setup+loop
+  const ledDir = path.join(__dirname, '../www/led-examples');
+  const ledFiles = fs.readdirSync(ledDir).filter(f => f.endsWith('.xml')).sort();
+  assert.deepStrictEqual(ledFiles, ['led_blink.xml', 'led_brightness.xml', 'led_glow.xml', 'led_off.xml', 'led_on.xml']);
+  const want = { 'led_on.xml': 'HIGH', 'led_off.xml': 'LOW', 'led_blink.xml': 'robosiddhi_led_blink', 'led_glow.xml': 'robosiddhi_led_fade', 'led_brightness.xml': 'board_base_inout_analog_write' };
+  ledFiles.forEach(f => {
+    const s = fs.readFileSync(path.join(ledDir, f), 'utf8');
+    assert.ok(s.includes('<xml') && s.includes('base_setup_loop'), f + ' parses');
+    assert.ok(s.includes('<field name="PIN">2</field>'), f + ' targets GPIO2');
+    assert.ok(s.includes(want[f]), f + ' has ' + want[f]);
+  });
 });
 
 // 10. New display/comm generators
