@@ -43,7 +43,12 @@ function sketchDirPath() {
     if (DEV_MODE) return path.join(__dirname, 'compiler', 'tmp');
     return path.join(app.getPath('userData'), 'sketch');
 }
-function sketchFilePath() { return path.join(sketchDirPath(), 'tmp.ino'); }
+function sketchFilePath() {
+    // Arduino REQUIRES <sketchdir>/<sketchdir>.ino name match, else
+    // "Can't open sketch: main file missing" (misdiagnosed as missing core before).
+    if (DEV_MODE) return path.join(sketchDirPath(), 'tmp.ino'); // dir tmp/
+    return path.join(sketchDirPath(), 'sketch.ino'); // dir sketch/
+}
 function repoTmpPath() {
     if (DEV_MODE) return path.join(__dirname, 'tmp');
     return path.join(app.getPath('userData'), 'tmp');

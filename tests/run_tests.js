@@ -220,14 +220,21 @@ test('upload always compiles fresh before flashing (no stale cache)', () => {  c
   assert.ok(ci !== -1 && ui !== -1 && ci < ui, 'rs-upload compiles before uploading');
   assert.ok(/COMPILE FAILED/.test(h[1]), 'compile failure aborts upload');
 });
-test('packaged exe resolves beside the binary (extraFiles, not asar)', () => {
-  const fs = require('fs');
+test('packaged exe resolves beside the binary (extraFiles, not asar)', () => {  const fs = require('fs');
   const main = fs.readFileSync(path.join(__dirname, '../main.js'), 'utf8');
   assert.ok(main.includes("path.dirname(app.getPath('exe'))"), 'cli path anchored at exe dir');
   assert.ok(!main.includes('app.asar.unpacked'), 'no asar.unpacked exe path left');
   const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
   const unpack = JSON.stringify(pkg.build.asarUnpack);
   assert.ok(!/compiler/.test(unpack), 'asarUnpack has no dead compiler entries');
+});
+test('sketch file matches its directory (Arduino rule)', () => {
+  const fs = require('fs');
+  const main = fs.readFileSync(path.join(__dirname, '../main.js'), 'utf8');
+  assert.ok(main.includes("'sketch.ino'"), 'packaged sketch file is sketch.ino');
+  assert.ok(main.includes("'tmp.ino'"), 'dev sketch file stays tmp.ino');
+  const Build = require('../www/blocklyduino/js/robosiddhi_build.js');
+  assert.ok(/main file missing/i.test(Build.diagnoseCompilerError("Can't open sketch: main file missing from sketch: X", 'esp32:esp32:esp32')), 'sketch error diagnosed exactly');
 });
 test('board modal writes only existing elements (no textContent crash)', () => {  const fs = require('fs');
   const btn = fs.readFileSync(path.join(__dirname, '../www/js/buttons_functions.js'), 'utf8');

@@ -41,7 +41,10 @@
   function diagnoseCompilerError(stderr, fqbn) {
     stderr = stderr || '';
     var core = coreForFqbn(fqbn);
-    if (/no such file or directory.*\.h|fatal error:.*\.h/i.test(stderr)) {
+    if (/can't open sketch|main file missing/i.test(stderr)) {
+      return 'App sketch setup error (internal file layout). Restart the app and retry. ' +
+        'If it repeats, copy this full text to the developer:\n' + stderr;
+    }    if (/no such file or directory.*\.h|fatal error:.*\.h/i.test(stderr)) {
       return 'Missing Arduino library (.h not found). Install via CLI panel: arduino-cli.exe lib install "<name>". ' +
         'DHT needs "DHT sensor library" + "Adafruit Unified Sensor". Details:\n' + stderr;
     }
