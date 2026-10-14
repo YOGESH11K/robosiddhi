@@ -227,9 +227,26 @@ test('packaged exe resolves beside the binary (extraFiles, not asar)', () => {  
   const pkg = JSON.parse(fs.readFileSync(path.join(__dirname, '../package.json'), 'utf8'));
   const unpack = JSON.stringify(pkg.build.asarUnpack);
   assert.ok(!/compiler/.test(unpack), 'asarUnpack has no dead compiler entries');
+  assert.ok(pkg.build.win.icon.endsWith('.ico'), 'windows icon is .ico');
 });
-test('sketch file matches its directory (Arduino rule)', () => {
+test('user logo applied everywhere', () => {
   const fs = require('fs');
+  const pngSig = Buffer.from([0x89, 0x50, 0x4E, 0x47]);
+  ['www/blocklyduino/media/logo_only.png', 'www/blocklyduino/media/logo_only2.png', 'src/appIcon.png'].forEach(f => {
+    const p = path.join(__dirname, '..', f);
+    assert.ok(fs.existsSync(p), f + ' exists');
+    const head = Buffer.alloc(4);
+    const fd = fs.openSync(p, 'r');
+    fs.readSync(fd, head, 0, 4, 0);
+    fs.closeSync(fd);
+    assert.ok(head.equals(pngSig), f + ' is a real PNG');
+  });
+  ['www/blocklyduino/media/icon.ico', 'src/icon.ico', 'src/install.ico'].forEach(f => {
+    const st = fs.statSync(path.join(__dirname, '..', f));
+    assert.ok(st.size > 10000, f + ' is the multi-size icon');
+  });
+});
+test('sketch file matches its directory (Arduino rule)', () => {  const fs = require('fs');
   const main = fs.readFileSync(path.join(__dirname, '../main.js'), 'utf8');
   assert.ok(main.includes("'sketch.ino'"), 'packaged sketch file is sketch.ino');
   assert.ok(main.includes("'tmp.ino'"), 'dev sketch file stays tmp.ino');

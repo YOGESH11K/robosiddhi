@@ -49,7 +49,7 @@
                 "zip"
             ],
             "signAndEditExecutable": false,
-            "icon": "src/appIcon.png"
+            "icon": "src/install.ico"
         },
         "nsis": {
             "installerIcon": "src/install.ico",
