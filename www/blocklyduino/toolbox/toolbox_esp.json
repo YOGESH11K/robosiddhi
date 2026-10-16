@@ -16,6 +16,8 @@ var toolbox_esp = {
     { "kind": "block", "type": "robosiddhi_esp_serial_print" },
     { "kind": "block", "type": "robosiddhi_mpu6050_read" },
     { "kind": "block", "type": "robosiddhi_motor_l298n" },
+    { "kind": "block", "blockxml": "<block type='servo_move'><field name='PIN'>4</field><value name='DEGREE'><shadow type='math_number'><field name='NUM'>90</field></shadow></value></block>" },
+    { "kind": "block", "type": "servo_read_degrees" },
     { "kind": "block", "type": "robosiddhi_oled_init" },
     { "kind": "block", "type": "robosiddhi_oled_print" },
     { "kind": "block", "type": "robosiddhi_oled_clear" },

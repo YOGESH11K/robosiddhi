@@ -103,7 +103,7 @@ Blockly.Blocks['robosiddhi_hcsr04'] = {
       .appendField('ECHO').appendField(new Blockly.FieldDropdown(function () { return RoboSiddhiPinOptions('digital_in'); }), 'PIN_ECHO');
     this.setOutput(true, 'Number');
     this.setStyle('arduino_blocks');
-    this.setTooltip('TRIG=output, ECHO=input. VCC 5V; ECHO 5V must be divided to 3.3V (1k/2k). Range 2-400cm.');
+    this.setTooltip('TRIG=output, ECHO=input. Works on ESP32 + ESP8266 (TRIG 14, ECHO 13). Wiring: VCC 5V + ECHO through 1k/2k divider to 3.3V — OR simpler: VCC to 3V3 (short range <1m), ECHO direct (3.3V-safe). Range 2-400cm.');
   }
 };
 

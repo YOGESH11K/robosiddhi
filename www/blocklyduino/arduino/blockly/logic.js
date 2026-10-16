@@ -116,17 +116,17 @@ Blockly.Arduino['logic_ternary'] = function (block) {
 Blockly.Arduino['controls_switch'] = function (block) {
     // switch/var/case/do/default function
     var n = 0;
-    var switchvar = Blockly.Arduino.variableDB_.getName(this.getFieldValue('SWVAR'), Blockly.Variables.NAME_TYPE);
-    var argument = Blockly.Arduino.valueToCode(this, 'CASE' + n, Blockly.Arduino.ORDER_NONE) || 'false';
-    var branch = Blockly.Arduino.statementToCode(this, 'DO' + n);
+    var switchvar = Blockly.Arduino.variableDB_.getName(block.getFieldValue('SWVAR'), Blockly.Variables.NAME_TYPE);
+    var argument = Blockly.Arduino.valueToCode(block, 'CASE' + n, Blockly.Arduino.ORDER_NONE) || 'false';
+    var branch = Blockly.Arduino.statementToCode(block, 'DO' + n);
     var code = 'switch (int ' + switchvar + ') {\n' + 'case ' + argument + ': \n' + branch + '  break;\n';
-    for (n = 1; n <= this.casebreakCount_; n++) {
-        argument = Blockly.Arduino.valueToCode(this, 'CASE' + n, Blockly.Arduino.ORDER_NONE) || 'false';
-        branch = Blockly.Arduino.statementToCode(this, 'DO' + n);
+    for (n = 1; n <= block.casebreakCount_; n++) {
+        argument = Blockly.Arduino.valueToCode(block, 'CASE' + n, Blockly.Arduino.ORDER_NONE) || 'false';
+        branch = Blockly.Arduino.statementToCode(block, 'DO' + n);
         code += ' case ' + argument + ': \n' + branch + '  break;\n';
     }
-    if (this.defaultCount_) {
-        branch = Blockly.Arduino.statementToCode(this, 'DEFAULT');
+    if (block.defaultCount_) {
+        branch = Blockly.Arduino.statementToCode(block, 'DEFAULT');
         code += ' default :\n' + branch + ' ';
     }
     code += '}'
@@ -142,5 +142,12 @@ Blockly.Arduino['base_setup'] = function (block) {
 
 Blockly.Arduino['base_loop'] = function (block) {
     // Code inside runs over and over until the program is stopped.
+    return Blockly.Arduino.statementToCode(block, 'LOOP');
+};
+
+Blockly.Arduino['base_setup_loop'] = function (block) {
+    // Single inseparable setup+loop block.
+    var setupCode = Blockly.Arduino.statementToCode(block, 'SETUP');
+    Blockly.Arduino.setups_['userSetupCode'] = setupCode;
     return Blockly.Arduino.statementToCode(block, 'LOOP');
 };

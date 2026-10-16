@@ -46,7 +46,7 @@ Blockly.Arduino['board_base_inout_highlow'] = function (block) {
 
 Blockly.Arduino['board_base_inout_analog_write'] = function (block) {
     var dropdown_pin = block.getFieldValue('PIN');
-    var value_num = Blockly.Arduino.valueToCode(this, 'PWM', Blockly.Arduino.ORDER_ATOMIC);
+    var value_num = Blockly.Arduino.valueToCode(block, 'PWM', Blockly.Arduino.ORDER_ATOMIC);
     //Blockly.Arduino.setups_['setup_output'+dropdown_pin] = 'pinMode('+dropdown_pin+', OUTPUT);';
     var code = 'analogWrite(' + dropdown_pin + ', ' + value_num + ');\n';
     return code;
@@ -60,26 +60,26 @@ Blockly.Arduino['board_base_inout_analog_read'] = function (block) {
 };
 
 Blockly.Arduino['board_base_delay'] = function (block) {
-    var delay_time = Blockly.Arduino.valueToCode(this, 'DELAY_TIME', Blockly.Arduino.ORDER_ATOMIC) || '1000'
+    var delay_time = Blockly.Arduino.valueToCode(block, 'DELAY_TIME', Blockly.Arduino.ORDER_ATOMIC) || '1000'
     var code = 'delay(' + delay_time + ');\n';
     return code;
 };
 
 Blockly.Arduino['board_base_angle'] = function (block) {
-    var angle = this.getFieldValue('ANGLE');
+    var angle = block.getFieldValue('ANGLE');
     return [angle, Blockly.Arduino.ORDER_ATOMIC];
 };
 
 Blockly.Arduino['board_base_map'] = function (block) {
-    var value_num = Blockly.Arduino.valueToCode(this, 'NUM', Blockly.Arduino.ORDER_NONE);
-    var value_dmax = Blockly.Arduino.valueToCode(this, 'DMAX', Blockly.Arduino.ORDER_ATOMIC);
+    var value_num = Blockly.Arduino.valueToCode(block, 'NUM', Blockly.Arduino.ORDER_NONE);
+    var value_dmax = Blockly.Arduino.valueToCode(block, 'DMAX', Blockly.Arduino.ORDER_ATOMIC);
     var code = 'map(' + value_num + ', 0, 1024, 0, ' + value_dmax + ')';
     return [code, Blockly.Arduino.ORDER_NONE];
 };
 
 Blockly.Arduino['board_base_inout_tone'] = function (block) {
     var dropdown_pin = block.getFieldValue("PIN");
-    var value_num = Blockly.Arduino.valueToCode(this, "NUM", Blockly.Arduino.ORDER_ATOMIC);
+    var value_num = Blockly.Arduino.valueToCode(block, "NUM", Blockly.Arduino.ORDER_ATOMIC);
     Blockly.Arduino.setups_['setup_output' + dropdown_pin] = 'pinMode(' + dropdown_pin + ', OUTPUT);';
     var code = "tone(" + dropdown_pin + ", " + value_num + ");\n";
     return code;

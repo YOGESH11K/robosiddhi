@@ -93,7 +93,7 @@
       "libraries": [{ "arduino": "ESP32Servo (ESP32)" }, { "arduino": "Servo (ESP8266/AVR)" }],
       "blocks": ["servo_move", "servo_read_degrees"],
       "wiring": "Do NOT power servo from ESP 3V3 pin for more than micro-servo test.",
-      "example": null
+      "example": "www/examples/esp_servo_pin4.xml"
     },
     {
       "id": "mpu6050", "name": "MPU6050 accel/gyro (I2C)", "status": "supported", "protocol": "I2C",

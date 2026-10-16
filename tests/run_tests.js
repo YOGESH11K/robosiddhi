@@ -161,7 +161,7 @@ test('project schema round-trips', () => {
 });
 test('examples exist and parse as XML', () => {
   const fs = require('fs');
-  ['esp_blink.xml', 'esp_temp_alarm.xml', 'esp_autolight.xml', 'esp_obstacle.xml', 'esp_soil.xml', 'esp_motion.xml', 'esp_oled_hello.xml', 'esp_wifi_http.xml', 'esp_led_fade.xml', 'esp_led_on_g2.xml', 'esp_obstacle_guard.xml'].forEach(f => {
+  ['esp_blink.xml', 'esp_temp_alarm.xml', 'esp_autolight.xml', 'esp_obstacle.xml', 'esp_soil.xml', 'esp_motion.xml', 'esp_oled_hello.xml', 'esp_wifi_http.xml', 'esp_led_fade.xml', 'esp_led_on_g2.xml', 'esp_obstacle_guard.xml', 'esp_servo_pin4.xml'].forEach(f => {
     const s = fs.readFileSync(path.join(__dirname, '../www/examples/' + f), 'utf8');
     assert.ok(s.includes('<xml') && s.includes('base_setup_loop'), f);
   });
@@ -211,7 +211,7 @@ test('main.js is secure: preload + isolation, no nodeIntegration', () => {  cons
     assert.ok(main.includes("'" + ch + "'"), 'handler ' + ch);
   });
 });
-test('upload always compiles fresh before flashing (no stale cache)', () => {  const fs = require('fs');
+test('upload compiles fresh unless code unchanged (fast re-upload, no stale flash)', () => {  const fs = require('fs');
   const main = fs.readFileSync(path.join(__dirname, '../main.js'), 'utf8');
   const h = main.match(/handle\('rs-upload'([\s\S]*?)\r?\n\}\);\r?\n/);
   assert.ok(h, 'rs-upload handler found');
@@ -219,6 +219,9 @@ test('upload always compiles fresh before flashing (no stale cache)', () => {  c
   const ui = h[1].indexOf("'upload'");
   assert.ok(ci !== -1 && ui !== -1 && ci < ui, 'rs-upload compiles before uploading');
   assert.ok(/COMPILE FAILED/.test(h[1]), 'compile failure aborts upload');
+  assert.ok(/sketchHash|sketch\.hash/.test(h[1]), 'hash guard: changed code forces recompile');
+  assert.ok(/--build-path/.test(main) && /--input-dir/.test(main), 'persistent build cache for fast upload');
+  assert.ok(/SKIPPED recompile/.test(h[1]), 'unchanged code skips recompile');
 });
 test('packaged exe resolves beside the binary (extraFiles, not asar)', () => {  const fs = require('fs');
   const main = fs.readFileSync(path.join(__dirname, '../main.js'), 'utf8');
@@ -310,7 +313,7 @@ test('dead files stay deleted', () => {  const fs = require('fs');
   });
 });
 
-// 12. ESP-only toolbox: no Arduino label, no Relay/Servo categories
+// 12. ESP-only toolbox: no Arduino label, SERVO replaces VARIABLES, relay stays out
 test('toolbox is ESP-only', () => {  const fs = require('fs');
   const en = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/msg/categories_en.js'), 'utf8');
   const m = en.match(/Blockly\.Msg\.CAT_BOARD = "(.*)";/);
@@ -321,7 +324,10 @@ test('toolbox is ESP-only', () => {  const fs = require('fs');
     assert.ok(!/CAT_BOARD = "Arduino"/.test(t), l + ' still labels board Arduino');
   });
   const tb = fs.readFileSync(path.join(__dirname, '../www/js/toolbox.js'), 'utf8');
-  assert.ok(!tb.includes('toolbox_relay') && !tb.includes('toolbox_servo'), 'relay/servo out of default toolbox');
+  assert.ok(!tb.includes('toolbox_relay'), 'relay out of default toolbox');
+  assert.ok(tb.includes('toolbox_servo'), 'servo in default toolbox (replaces VARIABLES)');
+  assert.ok(tb.includes('COLOUR,SERVO,FUNCTIONS'), 'SERVO in default toolboxIds');
+  assert.ok(!tb.includes('COLOUR,VARIABLES'), 'VARIABLES removed from defaults');
   assert.ok(tb.includes('toolbox_arduino') && tb.includes('toolbox_esp'), 'ESP32 GPIO + ESP components kept');
 });
 
@@ -364,6 +370,22 @@ test('logic category curated for ESP LED work', () => {
   assert.ok(gen.includes("Blockly.Arduino['robosiddhi_obstacle_guard']") && gen.includes('pulseIn(') && gen.includes('delayMicroseconds('));
   assert.ok(gen.includes('_cm >= 2'), 'guard ignores phantom sub-2cm readings');
   assert.ok(gen.includes('static int _rs_guard_state'), 'guard has hysteresis memory');
+});
+test('servo on GPIO4: ESP toolbox + ESP32 generator + pin4 example', () => {
+  const fs = require('fs');
+  const raw = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/toolbox/toolbox_esp.json'), 'utf8');
+  const m = raw.match(/var\s+toolbox_esp\s*=\s*(\{[\s\S]*\})\s*;?\s*$/);
+  assert.ok(m, 'toolbox_esp wrapper');
+  const tb = JSON.parse(m[1]);
+  const txt = JSON.stringify(tb);
+  assert.ok(txt.includes('servo_move') && txt.includes('servo_read_degrees'), 'ESP has servo blocks');
+  const gen = fs.readFileSync(path.join(__dirname, '../www/blocklyduino/arduino/addon/servo.js'), 'utf8');
+  assert.ok(gen.includes('ESP32Servo.h'), 'ESP32 servo lib');
+  assert.ok(gen.includes('#ifdef ESP32'), 'dual-chip servo include');
+  assert.ok(gen.includes('.attach(') && gen.includes('.write('), 'attach+write');
+  const ex = fs.readFileSync(path.join(__dirname, '../www/examples/esp_servo_pin4.xml'), 'utf8');
+  assert.ok(ex.includes('<field name="PIN">4</field>'), 'example targets GPIO4');
+  assert.ok(ex.includes('servo_move'), 'example moves servo');
 });
 
 console.log('\n' + pass + ' passed, ' + fail + ' failed');

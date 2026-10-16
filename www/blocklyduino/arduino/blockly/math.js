@@ -113,8 +113,8 @@ Blockly.Arduino['math_constant'] = function (block) {
 Blockly.Arduino['math_number_property'] = function (block) {
     // Check if a number is even, odd, prime, whole, positive, or negative
     // or if it is divisible by certain number. Returns true or false.
-    var number_to_check = Blockly.Arduino.valueToCode(this, 'NUMBER_TO_CHECK', Blockly.Arduino.ORDER_MEMBER) || '0';
-    var dropdown_property = this.getFieldValue('PROPERTY');
+    var number_to_check = Blockly.Arduino.valueToCode(block, 'NUMBER_TO_CHECK', Blockly.Arduino.ORDER_MEMBER) || '0';
+    var dropdown_property = block.getFieldValue('PROPERTY');
     var code;
     if (dropdown_property == 'PRIME') {
         // Prime is a special case as it is not a one-liner test.
@@ -159,7 +159,7 @@ Blockly.Arduino['math_number_property'] = function (block) {
             code = number_to_check + ' < 0';
             break;
         case 'DIVISIBLE_BY':
-            var divisor = Blockly.Arduino.valueToCode(this, 'DIVISOR', Blockly.Arduino.ORDER_MEMBER) || '0';
+            var divisor = Blockly.Arduino.valueToCode(block, 'DIVISOR', Blockly.Arduino.ORDER_MEMBER) || '0';
             code = number_to_check + ' % ' + divisor + ' == 0';
             break;
     }

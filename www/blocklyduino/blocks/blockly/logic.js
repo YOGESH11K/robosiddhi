@@ -304,3 +304,23 @@ Blockly.Blocks['base_loop'] = {
         this.setHelpUrl(Blockly.Msg.BASE_LOOP_HELPURL);
     }
 };
+
+Blockly.Blocks['base_setup_loop'] = {
+    /**
+     * Single inseparable setup+loop block. Cannot be split apart.
+     * @this Blockly.Block
+     */
+    init: function () {
+        this.setStyle('logic_blocks');
+        this.appendDummyInput()
+                .appendField(Blockly.Msg.BASE_SETUP_INPUT);
+        this.appendStatementInput('SETUP');
+        this.appendDummyInput()
+                .appendField(Blockly.Msg.BASE_LOOP_INPUT);
+        this.appendStatementInput('LOOP');
+        this.setPreviousStatement(false);
+        this.setNextStatement(false);
+        this.setTooltip(Blockly.Msg.BASE_SETUP_TOOLTIP + ' + ' + Blockly.Msg.BASE_LOOP_TOOLTIP);
+        this.setHelpUrl(Blockly.Msg.BASE_SETUP_HELPURL);
+    }
+};

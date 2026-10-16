@@ -49,13 +49,13 @@ Blockly.Arduino['controls_repeat'] =
 
 Blockly.Arduino['controls_whileUntil'] = function (block) {
     // Do while/until loop.
-    var argument0 = Blockly.Arduino.valueToCode(this, 'BOOL', Blockly.Arduino.ORDER_NONE) || 'false';
-    var branch = Blockly.Arduino.statementToCode(this, 'DO');
+    var argument0 = Blockly.Arduino.valueToCode(block, 'BOOL', Blockly.Arduino.ORDER_NONE) || 'false';
+    var branch = Blockly.Arduino.statementToCode(block, 'DO');
     if (Blockly.Arduino.INFINITE_LOOP_TRAP) {
         branch = Blockly.Arduino.INFINITE_LOOP_TRAP.replace(/%1/g,
-                '\'' + this.id + '\'') + branch;
+                '\'' + block.id + '\'') + branch;
     }
-    if (this.getFieldValue('MODE') == 'UNTIL') {
+    if (block.getFieldValue('MODE') == 'UNTIL') {
         if (!argument0.match(/^\w+$/)) {
             argument0 = '(' + argument0 + ')';
         }

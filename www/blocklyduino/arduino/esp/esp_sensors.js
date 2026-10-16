@@ -7,7 +7,7 @@ goog.provide('Blockly.Arduino.robosiddhi_esp');
 goog.require('Blockly.Arduino');
 
 Blockly.Arduino['robosiddhi_led_set'] = function (block) {
-  var pin = block.getFieldValue('PIN') || '13';
+  var pin = block.getFieldValue('PIN') || '2';
   var stat = block.getFieldValue('STAT') || 'HIGH';
   Blockly.Arduino.setups_['setup_output_' + pin] = 'pinMode(' + pin + ', OUTPUT);';
   return 'digitalWrite(' + pin + ', ' + stat + ');\n';
@@ -46,8 +46,10 @@ Blockly.Arduino['robosiddhi_dht_read'] = function (block) {
 };
 
 Blockly.Arduino['robosiddhi_hcsr04'] = function (block) {
-  var trig = block.getFieldValue('PIN_TRIG') || '5';
-  var echo = block.getFieldValue('PIN_ECHO') || '18';
+  // Universal safe default: TRIG 14 + ECHO 13 exist on ESP32 AND ESP8266,
+  // non-strapping, non-UART, I2C left free. (GPIO18 does NOT exist on ESP8266.)
+  var trig = block.getFieldValue('PIN_TRIG') || '14';
+  var echo = block.getFieldValue('PIN_ECHO') || '13';
   var key = trig + '_' + echo;
   Blockly.Arduino.setups_['setup_hcsr04_' + key + '_trig'] = 'pinMode(' + trig + ', OUTPUT);';
   Blockly.Arduino.setups_['setup_hcsr04_' + key + '_echo'] = 'pinMode(' + echo + ', INPUT);';
@@ -110,8 +112,8 @@ Blockly.Arduino['robosiddhi_led_fade'] = function (block) {
 };
 
 Blockly.Arduino['robosiddhi_obstacle_guard'] = function (block) {
-  var trig = block.getFieldValue('PIN_TRIG') || '4';
-  var echo = block.getFieldValue('PIN_ECHO') || '18';
+  var trig = block.getFieldValue('PIN_TRIG') || '14';
+  var echo = block.getFieldValue('PIN_ECHO') || '13';
   var led = block.getFieldValue('PIN_LED') || '2';
   var th = parseInt(block.getFieldValue('DIST_CM'), 10);
   if (isNaN(th)) th = 10;

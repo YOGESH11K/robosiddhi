@@ -16,7 +16,19 @@ var jsonToolbox = {
 jsonToolbox["contents"][0] = toolbox_standard["contents"][0];
 jsonToolbox["contents"][1] = toolbox_standard["contents"][1];
 jsonToolbox["contents"][2] = toolbox_standard["contents"][2];
-jsonToolbox["contents"][3] = toolbox_standard["contents"][6];
+// SERVO at VARIABLES slot - servo only, no variable category (user requirement).
+// toolbox_servo is loaded via <script> in index.html before this file.
+try {
+	if (typeof toolbox_servo !== 'undefined' && toolbox_servo && toolbox_servo.contents && toolbox_servo.contents[0]) {
+		var _servoCat = toolbox_servo.contents[0];
+		_servoCat.level = "1";
+		_servoCat.toolboxitemid = _servoCat.toolboxitemid || "SERVO";
+		jsonToolbox["contents"][3] = _servoCat;
+	} else {
+		// inline fallback: same servo blocks, never fall back to VARIABLES
+		jsonToolbox["contents"][3] = {"kind":"category","name":"%{BKY_CAT_SERVO}","toolboxitemid":"SERVO","level":"1","levels":"1,2,3","categorystyle":"servo_category","cssConfig":{"icon":"customIcon fas fa-robot"},"contents":[{"kind":"block","blockxml":"<block type='servo_move'><field name='PIN'>4</field><value name='DEGREE'><shadow type='math_number'><field name='NUM'>90</field></shadow></value></block>"},{"kind":"block","type":"servo_read_degrees"}]};
+	}
+} catch (e) { jsonToolbox["contents"][3] = {"kind":"category","name":"%{BKY_CAT_SERVO}","toolboxitemid":"SERVO","level":"1","levels":"1,2,3","categorystyle":"servo_category","contents":[{"kind":"block","type":"servo_move"},{"kind":"block","type":"servo_read_degrees"}]}; console.log('Servo toolbox fallback:', e); }
 jsonToolbox["contents"][4] = toolbox_arduino["contents"][0];
 // ESP Components category (added by RoboSiddhi ESP IDE). Guard if toolbox_esp missing.
 try {
@@ -38,18 +50,21 @@ Code.buildToolbox = function() {
 	// set the toolbox from url 
 	var toolboxIds = Code.getStringParamFromUrl('toolboxids', '');
 	var boardSelected = Code.getStringParamFromUrl('board', '');
+	// migrate old cache/URL: VARIABLES -> SERVO (servo only, no variable category)
+	if (toolboxIds) toolboxIds = toolboxIds.replace(/VARIABLES/g, 'SERVO');
+	try { var _cached = window.localStorage.toolboxids || ''; if (_cached.indexOf('VARIABLES') !== -1) window.localStorage.toolboxids = _cached.replace(/VARIABLES/g, 'SERVO'); } catch (e) {}
 	// set the default toolbox if none
 	if (toolboxIds === undefined || toolboxIds === "") {
 		if (boardSelected) {
-			toolboxIds = 'LOGIC,LOOPS,MATH,TEXT,LIST,COLOUR,VARIABLES,FUNCTIONS,BOARD';
+			toolboxIds = 'LOGIC,LOOPS,MATH,TEXT,LIST,COLOUR,SERVO,FUNCTIONS,BOARD';
 			window.localStorage.defaultToolbox = 1;
 		}
 		else {
-			toolboxIds = 'LOGIC,LOOPS,MATH,TEXT,LIST,COLOUR,VARIABLES,FUNCTIONS';
+			toolboxIds = 'LOGIC,LOOPS,MATH,TEXT,LIST,COLOUR,SERVO,FUNCTIONS';
 			window.localStorage.defaultToolbox = 0;
 		}
 	} else {
-		toolboxIds += ',LOGIC,LOOPS,MATH,TEXT,LIST,COLOUR,VARIABLES,FUNCTIONS,BOARD';
+		toolboxIds += ',LOGIC,LOOPS,MATH,TEXT,LIST,COLOUR,SERVO,FUNCTIONS,BOARD';
 			window.localStorage.defaultToolbox = 2;
 	}
 	//save config in local browser storage for rendering in menu categories list

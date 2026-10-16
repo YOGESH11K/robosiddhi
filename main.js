@@ -56,6 +56,28 @@ function repoTmpPath() {
     if (DEV_MODE) return path.join(__dirname, 'tmp');
     return path.join(app.getPath('userData'), 'tmp');
 }
+// Persistent per-board build dir: arduino-cli reuses object files here,
+// so repeat compile drops 40s -> ~11s. OS temp would rebuild from scratch.
+function buildDirPath(fqbn) {
+    const safe = String(fqbn || 'unknown').replace(/[^A-Za-z0-9]+/g, '_');
+    if (DEV_MODE) return path.join(__dirname, 'compiler', 'build', safe);
+    return path.join(app.getPath('userData'), 'build', safe);
+}
+function sketchHash() {
+    try {
+        const crypto = require('crypto');
+        const code = fs.readFileSync(sketchFilePath());
+        return crypto.createHash('sha256').update(code).digest('hex').slice(0, 16);
+    } catch (e) { return null; }
+}
+function hashFilePath(fqbn) { return path.join(buildDirPath(fqbn), 'sketch.hash'); }
+function buildHasBin(fqbn) {
+    try {
+        const dir = buildDirPath(fqbn);
+        if (!fs.existsSync(dir)) return false;
+        return fs.readdirSync(dir).some(f => f.endsWith('.bin'));
+    } catch (e) { return false; }
+}
 const PORT_RE = /^(COM\d+|\/dev\/tty[A-Za-z0-9._-]+)$/;
 const CORE_RE = /^[A-Za-z0-9_.-]+:[A-Za-z0-9_.-]+$/;
 const LIB_RE = /^[A-Za-z0-9 _+.\-@]+$/;
@@ -328,26 +350,40 @@ ipcMain.handle('rs-write-sketch', async (_e, code) => {
 ipcMain.handle('rs-compile', async (_e, args) => {
     args = args || {};
     if (!validFqbn(args.fqbn)) throw new Error('Select an ESP board first.');
-    const cmd = ['compile'];
+    fs.ensureDirSync(buildDirPath(args.fqbn));
+    const cmd = ['compile', '-j', '0'];
     if (args.verbose) cmd.push('-v');
-    cmd.push('-b', args.fqbn, sketchDirPath());
-    return runCli(cmd);
+    cmd.push('-b', args.fqbn, '--build-path', buildDirPath(args.fqbn), sketchDirPath());
+    const r = await runCli(cmd);
+    if (r.ok) { try { fs.writeFileSync(hashFilePath(args.fqbn), sketchHash() || ''); } catch (e) {} }
+    return r;
 });
 
 ipcMain.handle('rs-upload', async (_e, args) => {
     args = args || {};
     if (!validFqbn(args.fqbn)) throw new Error('Select an ESP board first.');
     if (typeof args.port !== 'string' || !PORT_RE.test(args.port)) throw new Error('Select a valid serial port first.');
-    // ALWAYS compile fresh first: uploading without rebuild would flash a stale
-    // cached binary (the exact bug users hit: green Upload, old program keeps running).
-    const cargs = ['compile'];
-    if (args.verbose) cargs.push('-v');
-    cargs.push('-b', args.fqbn, sketchDirPath());
-    const c = await runCli(cargs);
-    if (!c.ok) return { ok: false, stdout: c.stdout, stderr: 'COMPILE FAILED - nothing was uploaded. Fix the error above.\n' + c.stderr, phase: 'compile' };
+    fs.ensureDirSync(buildDirPath(args.fqbn));
+    // FAST PATH: same code + same board + binary exists -> skip 40s recompile,
+    // upload cached .bin directly (~upload time only). Hash guard keeps the
+    // old stale-flash bug fixed: any code change forces a fresh compile first.
+    const curHash = sketchHash();
+    let lastHash = null;
+    try { lastHash = fs.readFileSync(hashFilePath(args.fqbn), 'utf8'); } catch (e) {}
+    let c = null;
+    if (curHash && lastHash === curHash && buildHasBin(args.fqbn)) {
+        c = { ok: true, stdout: 'SKIPPED recompile (code unchanged) - flashing cached build.\n', stderr: '' };
+    } else {
+        const cargs = ['compile', '-j', '0'];
+        if (args.verbose) cargs.push('-v');
+        cargs.push('-b', args.fqbn, '--build-path', buildDirPath(args.fqbn), sketchDirPath());
+        c = await runCli(cargs);
+        if (!c.ok) return { ok: false, stdout: c.stdout, stderr: 'COMPILE FAILED - nothing was uploaded. Fix the error above.\n' + c.stderr, phase: 'compile' };
+        try { fs.writeFileSync(hashFilePath(args.fqbn), curHash || ''); } catch (e) {}
+    }
     const uargs = ['upload', '-p', args.port];
     if (args.verbose) uargs.push('-v');
-    uargs.push('-b', args.fqbn, sketchDirPath());
+    uargs.push('-b', args.fqbn, '--input-dir', buildDirPath(args.fqbn), sketchDirPath());
     const u = await runCli(uargs);
     return { ok: u.ok, stdout: c.stdout + '\n' + u.stdout, stderr: u.stderr, phase: 'upload' };
 });
